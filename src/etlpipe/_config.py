@@ -30,9 +30,7 @@ def set_backend(backend_name: str, **kwargs: Any) -> None:
         _local_state.engine = PandasEngine()
     elif backend_name == "spark":
         if SparkEngine is None:
-            raise ImportError(
-                "PySpark is required for the Spark backend. Install it with: pip install etlpipe[spark]"
-            )
+            raise ImportError("PySpark is required for the Spark backend. Install it with: pip install etlpipe[spark]")
         _local_state.backend = "spark"
         _local_state.engine = SparkEngine(**kwargs)
         _local_state.spark_config = kwargs

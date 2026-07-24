@@ -52,61 +52,248 @@ def generate_sample_data():
     logger.info("Generating sample enterprise data...")
 
     # --- Sales Transactions ---
-    sales = InOut.text_input({
-        "TransactionID": [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010,
-                          1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020],
-        "CustomerID":    [101, 102, 103, 104, 105, 101, 102, 103, 106, 107,
-                          108, 101, 104, 105, 109, 110, 103, 102, 111, 112],
-        "Product":       ["Laptop", "Phone", "Tablet", "Laptop", "Monitor",
-                          "Keyboard", "Phone", "Laptop", "Mouse", "Webcam",
-                          "Headset", "Dock", "SSD", "RAM", "Cable",
-                          "Laptop", "Phone", "Tablet", "Monitor", "Keyboard"],
-        "Category":      ["Hardware", "Mobile", "Mobile", "Hardware", "Hardware",
-                          "Accessories", "Mobile", "Hardware", "Accessories", "Accessories",
-                          "Accessories", "Hardware", "Hardware", "Hardware", "Accessories",
-                          "Hardware", "Mobile", "Mobile", "Hardware", "Accessories"],
-        "Amount":        [1200, 800, 450, 1500, 350, 75, 900, 1100, 25, 60,
-                          150, 200, 180, 90, -10, 1300, 850, 500, 400, 80],
-        "Quantity":      [1, 2, 1, 1, 1, 3, 1, 1, 5, 2,
-                          2, 1, 2, 4, 1, 1, 1, 2, 1, 3],
-        "Date":          ["2025-01-15", "2025-01-20", "2025-02-10", "2025-02-14", "2025-03-01",
-                          "2025-03-15", "2025-04-01", "2025-04-10", "2025-04-22", "2025-05-01",
-                          "2025-05-15", "2025-06-01", "2025-06-10", "2025-06-20", "2025-07-01",
-                          "2025-07-15", "2025-08-01", "2025-08-10", "2025-09-01", "2025-09-15"],
-        "SalesRep":      ["alice", " Bob ", "CHARLIE", "alice", "  diana  ",
-                          "alice", " Bob ", "CHARLIE", "eve  ", "frank",
-                          "alice", "alice", "  diana  ", "eve  ", "frank",
-                          " Bob ", "CHARLIE", " Bob ", "alice", "eve  "],
-    })
+    sales = InOut.text_input(
+        {
+            "TransactionID": [
+                1001,
+                1002,
+                1003,
+                1004,
+                1005,
+                1006,
+                1007,
+                1008,
+                1009,
+                1010,
+                1011,
+                1012,
+                1013,
+                1014,
+                1015,
+                1016,
+                1017,
+                1018,
+                1019,
+                1020,
+            ],
+            "CustomerID": [
+                101,
+                102,
+                103,
+                104,
+                105,
+                101,
+                102,
+                103,
+                106,
+                107,
+                108,
+                101,
+                104,
+                105,
+                109,
+                110,
+                103,
+                102,
+                111,
+                112,
+            ],
+            "Product": [
+                "Laptop",
+                "Phone",
+                "Tablet",
+                "Laptop",
+                "Monitor",
+                "Keyboard",
+                "Phone",
+                "Laptop",
+                "Mouse",
+                "Webcam",
+                "Headset",
+                "Dock",
+                "SSD",
+                "RAM",
+                "Cable",
+                "Laptop",
+                "Phone",
+                "Tablet",
+                "Monitor",
+                "Keyboard",
+            ],
+            "Category": [
+                "Hardware",
+                "Mobile",
+                "Mobile",
+                "Hardware",
+                "Hardware",
+                "Accessories",
+                "Mobile",
+                "Hardware",
+                "Accessories",
+                "Accessories",
+                "Accessories",
+                "Hardware",
+                "Hardware",
+                "Hardware",
+                "Accessories",
+                "Hardware",
+                "Mobile",
+                "Mobile",
+                "Hardware",
+                "Accessories",
+            ],
+            "Amount": [
+                1200,
+                800,
+                450,
+                1500,
+                350,
+                75,
+                900,
+                1100,
+                25,
+                60,
+                150,
+                200,
+                180,
+                90,
+                -10,
+                1300,
+                850,
+                500,
+                400,
+                80,
+            ],
+            "Quantity": [1, 2, 1, 1, 1, 3, 1, 1, 5, 2, 2, 1, 2, 4, 1, 1, 1, 2, 1, 3],
+            "Date": [
+                "2025-01-15",
+                "2025-01-20",
+                "2025-02-10",
+                "2025-02-14",
+                "2025-03-01",
+                "2025-03-15",
+                "2025-04-01",
+                "2025-04-10",
+                "2025-04-22",
+                "2025-05-01",
+                "2025-05-15",
+                "2025-06-01",
+                "2025-06-10",
+                "2025-06-20",
+                "2025-07-01",
+                "2025-07-15",
+                "2025-08-01",
+                "2025-08-10",
+                "2025-09-01",
+                "2025-09-15",
+            ],
+            "SalesRep": [
+                "alice",
+                " Bob ",
+                "CHARLIE",
+                "alice",
+                "  diana  ",
+                "alice",
+                " Bob ",
+                "CHARLIE",
+                "eve  ",
+                "frank",
+                "alice",
+                "alice",
+                "  diana  ",
+                "eve  ",
+                "frank",
+                " Bob ",
+                "CHARLIE",
+                " Bob ",
+                "alice",
+                "eve  ",
+            ],
+        }
+    )
 
     # --- Customer Master Data ---
-    customers = InOut.text_input({
-        "CustomerID":  [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112],
-        "Name":        ["Acme Corp", "Beta Inc", "Gamma LLC", "Delta Ltd", "Epsilon SA",
-                        "Zeta GmbH", "Eta Corp", "Theta Inc", "Iota LLC", "Kappa Ltd",
-                        "Lambda SA", "Mu Corp"],
-        "Region":      ["North", "South", "East", "West", "North",
-                        "South", "East", "West", "North", "South",
-                        "East", "West"],
-        "Tier":        ["Enterprise", "SMB", "Enterprise", "Enterprise", "SMB",
-                        "SMB", "Enterprise", "SMB", "Enterprise", "Enterprise",
-                        "SMB", "SMB"],
-        "Email":       ["contact@acme.com", "info@beta.io", "sales@gamma.com",
-                        "admin@delta.co.uk", "hello@epsilon.fr", "support@zeta.de",
-                        "team@eta.com", "ops@theta.io", "dev@iota.com", "biz@kappa.co",
-                        "eng@lambda.sa", "hr@mu.com"],
-        "Phone":       ["+1-555-100-1001", "+1-555-200-2002", "+1-555-300-3003",
-                        "+44-20-7946-0958", "+33-1-4723-5400", "+49-30-1234-5678",
-                        "+1-555-700-7007", "+1-555-800-8008", "+1-555-900-9009",
-                        "+1-555-100-1010", "+34-91-123-4567", "+1-555-120-1212"],
-    })
+    customers = InOut.text_input(
+        {
+            "CustomerID": [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112],
+            "Name": [
+                "Acme Corp",
+                "Beta Inc",
+                "Gamma LLC",
+                "Delta Ltd",
+                "Epsilon SA",
+                "Zeta GmbH",
+                "Eta Corp",
+                "Theta Inc",
+                "Iota LLC",
+                "Kappa Ltd",
+                "Lambda SA",
+                "Mu Corp",
+            ],
+            "Region": [
+                "North",
+                "South",
+                "East",
+                "West",
+                "North",
+                "South",
+                "East",
+                "West",
+                "North",
+                "South",
+                "East",
+                "West",
+            ],
+            "Tier": [
+                "Enterprise",
+                "SMB",
+                "Enterprise",
+                "Enterprise",
+                "SMB",
+                "SMB",
+                "Enterprise",
+                "SMB",
+                "Enterprise",
+                "Enterprise",
+                "SMB",
+                "SMB",
+            ],
+            "Email": [
+                "contact@acme.com",
+                "info@beta.io",
+                "sales@gamma.com",
+                "admin@delta.co.uk",
+                "hello@epsilon.fr",
+                "support@zeta.de",
+                "team@eta.com",
+                "ops@theta.io",
+                "dev@iota.com",
+                "biz@kappa.co",
+                "eng@lambda.sa",
+                "hr@mu.com",
+            ],
+            "Phone": [
+                "+1-555-100-1001",
+                "+1-555-200-2002",
+                "+1-555-300-3003",
+                "+44-20-7946-0958",
+                "+33-1-4723-5400",
+                "+49-30-1234-5678",
+                "+1-555-700-7007",
+                "+1-555-800-8008",
+                "+1-555-900-9009",
+                "+1-555-100-1010",
+                "+34-91-123-4567",
+                "+1-555-120-1212",
+            ],
+        }
+    )
 
     # Save to disk for YAML pipeline execution
     InOut.output_data(sales, str(SCRIPT_DIR / "demo_sales.csv"))
     InOut.output_data(customers, str(SCRIPT_DIR / "demo_customers.csv"))
 
-    logger.info("Sample data saved: demo_sales.csv (%d rows), demo_customers.csv (%d rows)",
-                len(sales), len(customers))
+    logger.info("Sample data saved: demo_sales.csv (%d rows), demo_customers.csv (%d rows)", len(sales), len(customers))
     return sales, customers
 
 
@@ -134,10 +321,10 @@ def run_governance_checks(sales, customers):
     sales_schema = {
         "columns": {
             "TransactionID": {"dtype": "int", "nullable": False},
-            "CustomerID":    {"dtype": "int", "nullable": False},
-            "Product":       {"dtype": "str", "nullable": False},
-            "Amount":        {"dtype": "int", "nullable": False},
-            "Quantity":      {"dtype": "int", "nullable": False},
+            "CustomerID": {"dtype": "int", "nullable": False},
+            "Product": {"dtype": "str", "nullable": False},
+            "Amount": {"dtype": "int", "nullable": False},
+            "Quantity": {"dtype": "int", "nullable": False},
         }
     }
     expect_schema(sales, sales_schema)
@@ -176,9 +363,11 @@ def run_pipeline_python_api(backend_name: str):
 
     # 3. Filter — remove negative/zero amounts (returns & errors)
     valid_sales, rejected = Preparation.filter(sales_clean, "Amount > 0")
-    logger.info("Filter: %s valid, %s rejected",
-                len(valid_sales) if backend_name == "pandas" else "N/A",
-                len(rejected) if backend_name == "pandas" else "N/A")
+    logger.info(
+        "Filter: %s valid, %s rejected",
+        len(valid_sales) if backend_name == "pandas" else "N/A",
+        len(rejected) if backend_name == "pandas" else "N/A",
+    )
 
     # 4. Formula — calculate profit margin and tax
     with_profit = Preparation.formula(valid_sales, "Profit", "Amount * 0.25")
@@ -197,7 +386,7 @@ def run_pipeline_python_api(backend_name: str):
             "Amount": ["sum", "mean", "count"],
             "Profit": ["sum"],
             "NetRevenue": ["sum"],
-        }
+        },
     )
 
     # 7. Sort — by total profit descending
@@ -213,11 +402,7 @@ def run_pipeline_python_api(backend_name: str):
 
     # 10. Validate output schema
     if backend_name == "pandas":
-        Developer.test(
-            with_running,
-            lambda df: df["Sum_Profit"].sum() > 0,
-            "Total profit must be positive!"
-        )
+        Developer.test(with_running, lambda df: df["Sum_Profit"].sum() > 0, "Total profit must be positive!")
         logger.info("✅ Output validation passed")
 
     # 11. Browse — display final result
@@ -241,46 +426,60 @@ def run_pipeline_yaml():
 
     # Create a YAML pipeline that uses the demo data
     import yaml
+
     pipeline_config = {
         "name": "Enterprise Sales Analytics (YAML)",
         "backend": "pandas",
         "steps": [
-            {"id": "load_sales", "tool": "InOut.input_data",
-             "args": {"path": str(SCRIPT_DIR / "demo_sales.csv")}},
-
-            {"id": "load_customers", "tool": "InOut.input_data",
-             "args": {"path": str(SCRIPT_DIR / "demo_customers.csv")}},
-
-            {"id": "cleanse", "tool": "Preparation.data_cleansing",
-             "inputs": {"df": "load_sales"},
-             "args": {"strip_whitespace": True, "modify_case": "upper"}},
-
-            {"id": "filter_valid", "tool": "Preparation.filter",
-             "inputs": {"df": "cleanse"},
-             "args": {"condition": "Amount > 0"}},
-
-            {"id": "add_profit", "tool": "Preparation.formula",
-             "inputs": {"df": "filter_valid.0"},
-             "args": {"column": "Profit", "expression": "Amount * 0.25"}},
-
-            {"id": "join_data", "tool": "Join.join",
-             "inputs": {"left": "add_profit", "right": "load_customers"},
-             "args": {"on": "CustomerID"}},
-
-            {"id": "summarize", "tool": "Transform.summarize",
-             "inputs": {"df": "join_data.1"},
-             "args": {"group_by": ["Region"],
-                      "aggregations": {"Amount": ["sum", "mean"],
-                                       "Profit": ["sum"]}}},
-
-            {"id": "sort_result", "tool": "Preparation.sort",
-             "inputs": {"df": "summarize"},
-             "args": {"columns": ["Sum_Profit"], "ascending": False}},
-
-            {"id": "save", "tool": "InOut.output_data",
-             "inputs": {"df": "sort_result"},
-             "args": {"path": str(SCRIPT_DIR / "demo_yaml_output.csv")}},
-        ]
+            {"id": "load_sales", "tool": "InOut.input_data", "args": {"path": str(SCRIPT_DIR / "demo_sales.csv")}},
+            {
+                "id": "load_customers",
+                "tool": "InOut.input_data",
+                "args": {"path": str(SCRIPT_DIR / "demo_customers.csv")},
+            },
+            {
+                "id": "cleanse",
+                "tool": "Preparation.data_cleansing",
+                "inputs": {"df": "load_sales"},
+                "args": {"strip_whitespace": True, "modify_case": "upper"},
+            },
+            {
+                "id": "filter_valid",
+                "tool": "Preparation.filter",
+                "inputs": {"df": "cleanse"},
+                "args": {"condition": "Amount > 0"},
+            },
+            {
+                "id": "add_profit",
+                "tool": "Preparation.formula",
+                "inputs": {"df": "filter_valid.0"},
+                "args": {"column": "Profit", "expression": "Amount * 0.25"},
+            },
+            {
+                "id": "join_data",
+                "tool": "Join.join",
+                "inputs": {"left": "add_profit", "right": "load_customers"},
+                "args": {"on": "CustomerID"},
+            },
+            {
+                "id": "summarize",
+                "tool": "Transform.summarize",
+                "inputs": {"df": "join_data.1"},
+                "args": {"group_by": ["Region"], "aggregations": {"Amount": ["sum", "mean"], "Profit": ["sum"]}},
+            },
+            {
+                "id": "sort_result",
+                "tool": "Preparation.sort",
+                "inputs": {"df": "summarize"},
+                "args": {"columns": ["Sum_Profit"], "ascending": False},
+            },
+            {
+                "id": "save",
+                "tool": "InOut.output_data",
+                "inputs": {"df": "sort_result"},
+                "args": {"path": str(SCRIPT_DIR / "demo_yaml_output.csv")},
+            },
+        ],
     }
 
     yaml_path = str(SCRIPT_DIR / "demo_pipeline.yaml")
@@ -321,7 +520,7 @@ def run_pipeline_yaml():
     # Display metrics summary
     print("\n📊 Pipeline Metrics:")
     print(f"   {'Step':<20s} {'Tool':<30s} {'Duration':>10s} {'Rows':>8s} {'Status':>8s}")
-    print(f"   {'─'*20} {'─'*30} {'─'*10} {'─'*8} {'─'*8}")
+    print(f"   {'─' * 20} {'─' * 30} {'─' * 10} {'─' * 8} {'─' * 8}")
     for m in pipeline.metrics:
         rows = str(m.get("output_rows", m.get("output_0_rows", "—")))
         print(f"   {m['step_id']:<20s} {m['tool']:<30s} {m['duration_s']:>9.4f}s {rows:>8s} {m['status']:>8s}")

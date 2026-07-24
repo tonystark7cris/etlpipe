@@ -832,8 +832,7 @@ class YxmdConverter:
                 tool_str = f"TODO_{node['short_name']}"
                 args = {"_plugin": node["plugin"]}
                 notes = [
-                    f"⚠ No mapping for plugin '{node['plugin']}'. "
-                    "Replace with equivalent Etlpipe tool or custom logic."
+                    f"⚠ No mapping for plugin '{node['plugin']}'. Replace with equivalent Etlpipe tool or custom logic."
                 ]
                 self._warnings.append(f"Unmapped plugin '{short_name}' (ToolID {tool_id}) — manual step required.")
 

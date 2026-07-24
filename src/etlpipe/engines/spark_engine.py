@@ -50,9 +50,7 @@ class SparkEngine(BackendEngine):
         checkpoint_interval: int = 10,
     ):
         if SparkSession is None:
-            raise ImportError(
-                "PySpark is required for the Spark backend. Install it with: pip install etlpipe[spark]"
-            )
+            raise ImportError("PySpark is required for the Spark backend. Install it with: pip install etlpipe[spark]")
 
         if spark is None:
             self.spark = SparkSession.builder.getOrCreate()
