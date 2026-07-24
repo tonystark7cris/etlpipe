@@ -86,10 +86,7 @@ suite.add_contract("raw_users", user_schema)
 suite.add_contract("raw_transactions", txn_schema)
 
 # Run the suite against a dictionary of DataFrames
-results = suite.run({
-    "raw_users": user_df,
-    "raw_transactions": txn_df
-})
+results = suite.run({"raw_users": user_df, "raw_transactions": txn_df})
 
 print(results)  # Returns a DataFrame with pass/fail metrics per contract
 ```
