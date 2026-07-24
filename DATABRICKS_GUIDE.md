@@ -18,15 +18,15 @@ Because Etlpipe features a dynamic dual-engine architecture, you can write famil
 
 ## Step 1: Cluster Setup
 
-To run Etlpipe on Databricks, you need to ensure the Spark backend engine is installed on your cluster.
+To run Etlpipe on Databricks, you just need to install the core package. Databricks already provides the Spark backend natively.
 
 1. Navigate to your Databricks Workspace -> **Compute**.
 2. Select your target cluster (e.g., Databricks Runtime 13.3 LTS).
 3. Click the **Libraries** tab -> **Install New**.
-4. Select **PyPI** and enter: `Etlpipe[spark]`
+4. Select **PyPI** and enter: `etlpipe`
 5. Click **Install**. 
 
-Alternatively, if you are using Databricks Repos, add `Etlpipe[spark]` to your `requirements.txt`.
+Alternatively, if you are using Databricks Repos, add `etlpipe` to your `requirements.txt`.
 
 ---
 

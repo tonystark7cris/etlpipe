@@ -1888,7 +1888,7 @@ active, inactive = Preparation.filter(df, column="IsActive", operator="is true")
 
 **Q: How do I use Etlpipe on Databricks?**
 
-Install `etlpipe[spark]` as a cluster library via the Databricks UI or init script. Databricks has an active `SparkSession` — Etlpipe finds it automatically when you call `set_backend("spark")`.
+Install `etlpipe` as a cluster library via the Databricks UI or init script (no need for `[spark]` since PySpark is native). Databricks has an active `SparkSession` — Etlpipe finds it automatically when you call `set_backend("spark")`.
 
 ---
 

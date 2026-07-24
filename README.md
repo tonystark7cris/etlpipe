@@ -67,7 +67,7 @@ CMD ["python", "pipeline.py"]
 
 ### Cloud Environments (Airflow, Databricks)
 - **Airflow**: Add `etlpipe` to your `requirements.txt`. Your DAGs can wrap Etlpipe logic inside `PythonOperator`.
-- **Databricks**: Install `etlpipe[spark]` as a cluster library. Your Etlpipe pipelines will transparently dispatch execution to the Databricks Spark cluster.
+- **Databricks**: Install `etlpipe` as a cluster library (do not use `[spark]` as Databricks provides it natively). Your Etlpipe pipelines will transparently dispatch execution to the Databricks Spark cluster.
 
 ---
 
