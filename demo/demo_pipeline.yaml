@@ -1,0 +1,65 @@
+name: Enterprise Sales Analytics (YAML)
+backend: pandas
+steps:
+- id: load_sales
+  tool: InOut.input_data
+  args:
+    path: C:\Users\Nihal\OneDrive\Documents\flowshift\demo\demo_sales.csv
+- id: load_customers
+  tool: InOut.input_data
+  args:
+    path: C:\Users\Nihal\OneDrive\Documents\flowshift\demo\demo_customers.csv
+- id: cleanse
+  tool: Preparation.data_cleansing
+  inputs:
+    df: load_sales
+  args:
+    strip_whitespace: true
+    modify_case: upper
+- id: filter_valid
+  tool: Preparation.filter
+  inputs:
+    df: cleanse
+  args:
+    condition: Amount > 0
+- id: add_profit
+  tool: Preparation.formula
+  inputs:
+    df: filter_valid.0
+  args:
+    column: Profit
+    expression: Amount * 0.25
+- id: join_data
+  tool: Join.join
+  inputs:
+    left: add_profit
+    right: load_customers
+  args:
+    'on': CustomerID
+- id: summarize
+  tool: Transform.summarize
+  inputs:
+    df: join_data.1
+  args:
+    group_by:
+    - Region
+    aggregations:
+      Amount:
+      - sum
+      - mean
+      Profit:
+      - sum
+- id: sort_result
+  tool: Preparation.sort
+  inputs:
+    df: summarize
+  args:
+    columns:
+    - Sum_Profit
+    ascending: false
+- id: save
+  tool: InOut.output_data
+  inputs:
+    df: sort_result
+  args:
+    path: C:\Users\Nihal\OneDrive\Documents\flowshift\demo\demo_yaml_output.csv

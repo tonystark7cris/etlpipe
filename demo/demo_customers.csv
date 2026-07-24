@@ -1,0 +1,13 @@
+CustomerID,Name,Region,Tier,Email,Phone
+101,Acme Corp,North,Enterprise,contact@acme.com,+1-555-100-1001
+102,Beta Inc,South,SMB,info@beta.io,+1-555-200-2002
+103,Gamma LLC,East,Enterprise,sales@gamma.com,+1-555-300-3003
+104,Delta Ltd,West,Enterprise,admin@delta.co.uk,+44-20-7946-0958
+105,Epsilon SA,North,SMB,hello@epsilon.fr,+33-1-4723-5400
+106,Zeta GmbH,South,SMB,support@zeta.de,+49-30-1234-5678
+107,Eta Corp,East,Enterprise,team@eta.com,+1-555-700-7007
+108,Theta Inc,West,SMB,ops@theta.io,+1-555-800-8008
+109,Iota LLC,North,Enterprise,dev@iota.com,+1-555-900-9009
+110,Kappa Ltd,South,Enterprise,biz@kappa.co,+1-555-100-1010
+111,Lambda SA,East,SMB,eng@lambda.sa,+34-91-123-4567
+112,Mu Corp,West,SMB,hr@mu.com,+1-555-120-1212

@@ -1,0 +1,89 @@
+name: "Enterprise Customer Analytics Pipeline (Spark)"
+backend: "spark"
+steps:
+  # 1. Load Sales Data
+  - id: "load_sales"
+    tool: "InOut.input_data"
+    args:
+      path: "sales.csv"
+      
+  # 2. Load Regions Data
+  - id: "load_regions"
+    tool: "InOut.input_data"
+    args:
+      path: "regions.csv"
+      
+  # 3. Cleanse Sales Data
+  - id: "cleanse_sales"
+    tool: "Preparation.data_cleansing"
+    inputs:
+      df: "load_sales"
+    args:
+      replace_nulls_with: 0
+      strip_whitespace: true
+      modify_case: "upper"
+      
+  # 4. Filter Valid Sales
+  - id: "filter_sales"
+    tool: "Preparation.filter"
+    inputs:
+      df: "cleanse_sales"
+    args:
+      condition: "Amount > 0"
+      
+  # 5. Add Profit Formula
+  - id: "calc_profit"
+    tool: "Preparation.formula"
+    inputs:
+      df: "filter_sales.0" # Use the True anchor
+    args:
+      column: "Profit"
+      expression: "Amount * 0.2"
+      
+  # 6. Extract Email via Regex
+  - id: "extract_email"
+    tool: "Parse.regex_parse"
+    inputs:
+      df: "calc_profit"
+    args:
+      column: "Notes"
+      pattern: 'EMAIL: (.+)'
+      output_cols: ["EmailAddress"]
+      
+  # 7. Join Data
+  - id: "join_regions"
+    tool: "Join.join"
+    inputs:
+      left: "extract_email"
+      right: "load_regions"
+    args:
+      "on": "CustomerID"
+      
+  # 8. Summarize Metrics
+  - id: "summarize_metrics"
+    tool: "Transform.summarize"
+    inputs:
+      df: "join_regions.1" # Use the Joined anchor (index 1)
+    args:
+      group_by: ["Region"]
+      aggregations:
+        Amount: ["sum", "mean"]
+        Profit: ["sum"]
+        CustomerID: "count distinct"
+        
+  # 9. Sort by Profit
+  - id: "sort_output"
+    tool: "Preparation.sort"
+    inputs:
+      df: "summarize_metrics"
+    args:
+      columns: ["Sum_Profit"]
+      ascending: false
+      
+  # 10. Output the final data
+  - id: "save_output"
+    tool: "InOut.output_data"
+    inputs:
+      df: "sort_output"
+    args:
+      path: "analytics_output_spark.csv"

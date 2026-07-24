@@ -1,0 +1,21 @@
+name: "CLI Test Pipeline"
+steps:
+  - id: "load"
+    tool: "InOut.text_input"
+    args:
+      data:
+        Name: ["Alice", "Bob", "Charlie"]
+        Age: [25, 30, 35]
+        Score: [80, 95, 75]
+  - id: "filter"
+    tool: "Preparation.filter"
+    inputs:
+      df: "load"
+    args:
+      condition: "Score > 80"
+  - id: "save"
+    tool: "InOut.output_data"
+    inputs:
+      df: "filter.0"
+    args:
+      path: "cli_test_output.csv"

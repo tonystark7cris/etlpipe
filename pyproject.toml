@@ -1,0 +1,77 @@
+﻿[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "etlpipe"
+dynamic = ["version"]
+description = "The fastest path from proprietary visual ETL to open-source Python â€” visual ETL migration engine with dual Pandas/PySpark execution."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Nihal", email = "nihaltripathi6@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["etlpipe", "pandas", "etl", "data-engineering", "pipeline", "dataframe", "yxmd", "migration"]
+
+dependencies = [
+    "pandas>=1.5.0,<3.0",
+    "PyYAML>=6.0,<7.0",
+    "pyarrow>=23.0.1,<25.0",
+    "defusedxml>=0.7.0,<1.0",
+]
+
+[project.scripts]
+etlpipe = "etlpipe.pipeline:cli_main"
+etlpipe-convert = "etlpipe.convert:convert_cli_main"
+
+[project.optional-dependencies]
+spark = ["pyspark>=3.4.0,<4.0", "pyarrow>=23.0.1,<25.0", "setuptools"]
+cloud = ["fsspec>=2023.1.0,<2026.0", "s3fs>=2023.1.0,<2026.0"]
+governance = ["etlpipe-governance>=0.1.0"]
+all = ["pyspark>=3.4.0,<4.0", "pyarrow>=23.0.1,<25.0", "setuptools", "fsspec>=2023.1.0,<2026.0", "s3fs>=2023.1.0,<2026.0", "etlpipe-governance>=0.1.0"]
+dev = [
+    "pytest>=9.0.3,<11.0",
+    "pytest-cov>=4.0,<6.0",
+    "ruff>=0.4.0,<1.0",
+    "build>=1.0,<2.0",
+    "twine>=5.0,<6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/tonystark7cris/etlpipe"
+Documentation = "https://github.com/tonystark7cris/etlpipe#readme"
+Repository = "https://github.com/tonystark7cris/etlpipe"
+Issues = "https://github.com/tonystark7cris/etlpipe/issues"
+Changelog = "https://github.com/tonystark7cris/etlpipe/blob/main/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "src/etlpipe/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/etlpipe", "src/etlpipe_governance"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "src/etlpipe_governance/tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]

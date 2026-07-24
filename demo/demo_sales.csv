@@ -1,0 +1,21 @@
+TransactionID,CustomerID,Product,Category,Amount,Quantity,Date,SalesRep
+1001,101,Laptop,Hardware,1200,1,2025-01-15,alice
+1002,102,Phone,Mobile,800,2,2025-01-20, Bob 
+1003,103,Tablet,Mobile,450,1,2025-02-10,CHARLIE
+1004,104,Laptop,Hardware,1500,1,2025-02-14,alice
+1005,105,Monitor,Hardware,350,1,2025-03-01,  diana  
+1006,101,Keyboard,Accessories,75,3,2025-03-15,alice
+1007,102,Phone,Mobile,900,1,2025-04-01, Bob 
+1008,103,Laptop,Hardware,1100,1,2025-04-10,CHARLIE
+1009,106,Mouse,Accessories,25,5,2025-04-22,eve  
+1010,107,Webcam,Accessories,60,2,2025-05-01,frank
+1011,108,Headset,Accessories,150,2,2025-05-15,alice
+1012,101,Dock,Hardware,200,1,2025-06-01,alice
+1013,104,SSD,Hardware,180,2,2025-06-10,  diana  
+1014,105,RAM,Hardware,90,4,2025-06-20,eve  
+1015,109,Cable,Accessories,-10,1,2025-07-01,frank
+1016,110,Laptop,Hardware,1300,1,2025-07-15, Bob 
+1017,103,Phone,Mobile,850,1,2025-08-01,CHARLIE
+1018,102,Tablet,Mobile,500,2,2025-08-10, Bob 
+1019,111,Monitor,Hardware,400,1,2025-09-01,alice
+1020,112,Keyboard,Accessories,80,3,2025-09-15,eve  
