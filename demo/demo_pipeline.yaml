@@ -4,11 +4,11 @@ steps:
 - id: load_sales
   tool: InOut.input_data
   args:
-    path: C:\Users\Nihal\OneDrive\Documents\flowshift\demo\demo_sales.csv
+    path: C:\Users\Nihal\OneDrive\Documents\etlpipe\demo\demo_sales.csv
 - id: load_customers
   tool: InOut.input_data
   args:
-    path: C:\Users\Nihal\OneDrive\Documents\flowshift\demo\demo_customers.csv
+    path: C:\Users\Nihal\OneDrive\Documents\etlpipe\demo\demo_customers.csv
 - id: cleanse
   tool: Preparation.data_cleansing
   inputs:
@@ -62,4 +62,4 @@ steps:
   inputs:
     df: sort_result
   args:
-    path: C:\Users\Nihal\OneDrive\Documents\flowshift\demo\demo_yaml_output.csv
+    path: C:\Users\Nihal\OneDrive\Documents\etlpipe\demo\demo_yaml_output.csv
