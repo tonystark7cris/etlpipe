@@ -1,4 +1,4 @@
-﻿"""Declarative pipeline engine for etlpipe.
+"""Declarative pipeline engine for etlpipe.
 
 Allows executing a series of etlpipe tools defined in a YAML configuration file.
 """

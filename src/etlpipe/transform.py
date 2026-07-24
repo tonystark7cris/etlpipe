@@ -1,4 +1,4 @@
-﻿"""Transform â€” Reshape and aggregate tools.
+"""Transform — Reshape and aggregate tools.
 
 **Transform** tool palette: summarise, transpose,
 cross-tab, running totals, and counting.
@@ -14,7 +14,7 @@ import pandas as pd
 
 
 class Transform:
-    """etlpipe **Transform** tool palette.
+    """Etlpipe **Transform** tool palette.
 
     Provides static methods for aggregation, pivoting, and other
     reshape operations.
@@ -49,7 +49,7 @@ class Transform:
             group_by: Column(s) to group by.  ``None`` aggregates the
                 entire DataFrame.
             aggregations: ``{column: agg_func}`` or
-                ``{column: [agg_func, â€¦]}`` dict passed to
+                ``{column: [agg_func, …]}`` dict passed to
                 ``DataFrame.agg()``.  Common values: ``"sum"``,
                 ``"mean"``, ``"count"``, ``"min"``, ``"max"``,
                 ``"first"``, ``"last"``, ``"std"``, ``"median"``.
@@ -68,7 +68,7 @@ class Transform:
         return get_engine().summarize(df, group_by, aggregations)
 
     # ------------------------------------------------------------------ #
-    # Transpose (wide â†’ long)
+    # Transpose (wide → long)
     # ------------------------------------------------------------------ #
     @staticmethod
     def transpose(
@@ -99,7 +99,7 @@ class Transform:
         return get_engine().transpose(df, key_columns, data_columns, var_name, value_name)
 
     # ------------------------------------------------------------------ #
-    # Cross Tab (long â†’ wide)
+    # Cross Tab (long → wide)
     # ------------------------------------------------------------------ #
     @staticmethod
     def cross_tab(

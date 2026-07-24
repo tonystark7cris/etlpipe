@@ -1,4 +1,4 @@
-﻿# ðŸ¦ etlpipe: The Visual ETL-to-Python Migration Engine
+# 🐦 Etlpipe: The Visual ETL-to-Python Migration Engine
 
 **The fastest path from proprietary visual ETL to open-source Python.**
 
@@ -8,24 +8,24 @@
 
 ---
 
-Welcome to the **etlpipe Documentation**! etlpipe is the translation layer designed for data directors, consultants, analysts, and engineers moving enterprise workflows off expensive proprietary visual ETL software onto open-source Python.
+Welcome to the **Etlpipe Documentation**! Etlpipe is the translation layer designed for data directors, consultants, analysts, and engineers moving enterprise workflows off expensive proprietary visual ETL software onto open-source Python.
 
 ---
 
 ## Overview & Purpose
 
-### What is etlpipe?
-etlpipe is the **Visual ETL Migration Accelerator**. It provides a 1:1 API mapping of visual ETL tool palettes (`Preparation`, `Join`, `Transform`, `Parse`, `InOut`, `Developer`) to clean Python code and declarative YAMLâ€”allowing enterprise teams to eliminate per-seat licensing costs and migrate workflows to Python in weeks, not months.
+### What is Etlpipe?
+Etlpipe is the **Visual ETL Migration Accelerator**. It provides a 1:1 API mapping of visual ETL tool palettes (`Preparation`, `Join`, `Transform`, `Parse`, `InOut`, `Developer`) to clean Python code and declarative YAML—allowing enterprise teams to eliminate per-seat licensing costs and migrate workflows to Python in weeks, not months.
 
-### Why etlpipe Exists
+### Why Etlpipe Exists
 1. **The Cost Trap:** Proprietary visual ETL software costs **$3,000 to $5,000+ per user annually**. A team of 20 analysts costs $100k+ every single year just for desktop GUI licenses.
 2. **The Cognitive Gap:** Companies want to move to free, open-source Python (`pandas`/`PySpark`), but their analysts only understand visual ETL concepts (Filter T/F anchors, Join L/J/R anchors, Summarize). Teaching an analyst Pandas from scratch takes months and stalls productivity.
-3. **The etlpipe Solution:** etlpipe bridges this gap. Analysts write `Preparation.filter()` using familiar mental models or auto-convert `.yxmd` workflow files using `etlpipe-convert`. Data Engineers get clean, testable Python code ready for Airflow or Databricks.
+3. **The Etlpipe Solution:** Etlpipe bridges this gap. Analysts write `Preparation.filter()` using familiar mental models or auto-convert `.yxmd` workflow files using `etlpipe-convert`. Data Engineers get clean, testable Python code ready for Airflow or Databricks.
 
 ### Value Proposition by Persona
 - **For CIOs & Data Directors:** Eliminates expensive visual ETL desktop licensing fees, saving $100k+ annually while eliminating vendor lock-in.
 - **For Data Analysts:** Zero friction. Workflows translate 1:1 using familiar concepts (`Summarize`, `Join`, `Formula`) and visual anchors (`L, J, R` or `T, F` tuples).
-- **For Data Engineers & Consultants:** Automated CLI tool (`etlpipe-convert`) translates `.yxmd` XML workflows into executable etlpipe YAML/Python pipelines automatically.
+- **For Data Engineers & Consultants:** Automated CLI tool (`etlpipe-convert`) translates `.yxmd` XML workflows into executable Etlpipe YAML/Python pipelines automatically.
 - **Enterprise Scalability (Dual Backend):** Develop locally using **Pandas**, then switch backend to **PySpark** with one line (`etlpipe.set_backend("spark")`) to scale across distributed clusters without altering business logic.
 - **Standalone Data Governance:** Integrated or modular data quality via `etlpipe-governance` (PII scanning/masking and schema contracts).
 
@@ -33,12 +33,12 @@ etlpipe is the **Visual ETL Migration Accelerator**. It provides a 1:1 API mappi
 
 ## Installation & Setup
 
-etlpipe runs anywhere Python 3.10+ is supported.
+Etlpipe runs anywhere Python 3.10+ is supported.
 
 ### Installation Options
 
 ```bash
-# Core etlpipe Engine (Includes Converter & Bundled Governance Tools)
+# Core Etlpipe Engine (Includes Converter & Bundled Governance Tools)
 pip install etlpipe
 
 # With PySpark Support (For Big Data Clusters & Distributed Pipelines)
@@ -47,7 +47,7 @@ pip install etlpipe[spark]
 # With Cloud Storage Support (S3, GCS, ADLS via fsspec & s3fs)
 pip install etlpipe[cloud]
 
-# Standalone Data Governance Package (If only using PII/Contracts without etlpipe engine)
+# Standalone Data Governance Package (If only using PII/Contracts without Etlpipe engine)
 pip install etlpipe-governance
 
 # Install All Dependencies (Spark + Cloud + Governance)
@@ -55,28 +55,28 @@ pip install etlpipe[all]
 ```
 
 ### Docker
-To run etlpipe in a containerized environment (e.g., for Kubernetes or AWS ECS):
+To run Etlpipe in a containerized environment (e.g., for Kubernetes or AWS ECS):
 ```dockerfile
 FROM python:3.10-slim
 WORKDIR /app
-# Install etlpipe with standard backend
+# Install Etlpipe with standard backend
 RUN pip install --no-cache-dir etlpipe
 COPY . /app
 CMD ["python", "pipeline.py"]
 ```
 
 ### Cloud Environments (Airflow, Databricks)
-- **Airflow**: Add `etlpipe` to your `requirements.txt`. Your DAGs can wrap etlpipe logic inside `PythonOperator`.
-- **Databricks**: Install `etlpipe[spark]` as a cluster library. Your etlpipe pipelines will transparently dispatch execution to the Databricks Spark cluster.
+- **Airflow**: Add `etlpipe` to your `requirements.txt`. Your DAGs can wrap Etlpipe logic inside `PythonOperator`.
+- **Databricks**: Install `etlpipe[spark]` as a cluster library. Your Etlpipe pipelines will transparently dispatch execution to the Databricks Spark cluster.
 
 ---
 
 ## Core Concepts
 
-etlpipe revolves around several core principles:
+Etlpipe revolves around several core principles:
 
 ### 1. The Six Core Palettes
-etlpipe implements all core visual ETL tools grouped into logical palettes:
+Etlpipe implements all core visual ETL tools grouped into logical palettes:
 - **InOut**: Reading/writing data (`input_data`, `output_data`).
 - **Preparation**: Cleaning, filtering, sorting, and row-level generation (`filter`, `formula`, `select`, `data_cleansing`).
 - **Join**: Blending datasets together (`join`, `union`, `find_replace`).
@@ -85,10 +85,10 @@ etlpipe implements all core visual ETL tools grouped into logical palettes:
 - **Developer**: Assertions, testing, and dynamic metadata (`test`, `column_info`).
 
 ### 2. Immutability
-All etlpipe functions are pure. The original DataFrames are never mutated. Every tool execution returns a brand-new DataFrame (or tuple of DataFrames).
+All Etlpipe functions are pure. The original DataFrames are never mutated. Every tool execution returns a brand-new DataFrame (or tuple of DataFrames).
 
 ### 3. Output Anchors (Tuples)
-In a visual ETL tool, a tool like `Filter` has a 'True' and 'False' output anchor. In etlpipe, these return as a tuple:
+In a visual ETL tool, a tool like `Filter` has a 'True' and 'False' output anchor. In Etlpipe, these return as a tuple:
 ```python
 high_value, low_value = Preparation.filter(df, "Revenue > 1000")
 ```
@@ -104,9 +104,9 @@ etlpipe.set_backend("spark") # Defaults to "pandas"
 
 ## Comprehensive Tool Reference
 
-Below is a detailed breakdown of every tool available in etlpipe, complete with usage examples in Python. For YAML usage, you can map the arguments directly.
+Below is a detailed breakdown of every tool available in Etlpipe, complete with usage examples in Python. For YAML usage, you can map the arguments directly.
 
-### ðŸ”Œ InOut Palette
+### 🔌 InOut Palette
 
 - **`InOut.input_data(path: str)`**: Reads data from CSV, Excel, JSON, or Parquet. Auto-detects format.
   *Usage*: `df = InOut.input_data("data.csv")`
@@ -121,7 +121,7 @@ Below is a detailed breakdown of every tool available in etlpipe, complete with 
 - **`InOut.date_time_now()`**: Returns a single-row DataFrame with the current timestamp.
   *Usage*: `df_time = InOut.date_time_now()`
 
-### ðŸ”§ Preparation Palette
+### 🔧 Preparation Palette
 
 - **`Preparation.filter(df, condition: str)`**: Splits data based on a SQL-like string condition. Returns `(true_df, false_df)`.
   *Usage*: `high, low = Preparation.filter(df, "Sales > 100")`
@@ -160,9 +160,9 @@ Below is a detailed breakdown of every tool available in etlpipe, complete with 
 - **`Preparation.rank(df, column: str, group_by: list=None)`**: Assigns numeric ranks.
   *Usage*: `df = Preparation.rank(df, "Sales", group_by=["Region"])`
 
-### ðŸ”— Join Palette
+### 🔗 Join Palette
 
-- **`Join.join(left, right, on: str)`**: Standard join. Returns `(Left_Unjoined, Joined, Right_Unjoined)`. *Note: etlpipe always performs a full outer join internally to provide all three output anchors, mirroring a visual ETL tool's Join behavior.*
+- **`Join.join(left, right, on: str)`**: Standard join. Returns `(Left_Unjoined, Joined, Right_Unjoined)`. *Note: Etlpipe always performs a full outer join internally to provide all three output anchors, mirroring a visual ETL tool's Join behavior.*
   *Usage*: `L, J, R = Join.join(df1, df2, on="ID")`
 - **`Join.join_multiple(*dfs, on: str)`**: Joins 3+ DataFrames on a common key.
   *Usage*: `df = Join.join_multiple(df1, df2, df3, on="ID")`
@@ -177,7 +177,7 @@ Below is a detailed breakdown of every tool available in etlpipe, complete with 
 - **`Join.make_group(df, left_key: str, right_key: str)`**: Groups relationship keys.
   *Usage*: `df = Join.make_group(df, "PersonA", "PersonB")`
 
-### ðŸ“Š Transform Palette
+### 📊 Transform Palette
 
 - **`Transform.summarize(df, group_by: list, aggregations: dict)`**: GroupBy with named aggregations.
   *Usage*: `df = Transform.summarize(df, ["Region"], {"Sales": ["sum", "mean"]})`
@@ -196,7 +196,7 @@ Below is a detailed breakdown of every tool available in etlpipe, complete with 
 - **`Transform.weighted_average(df, value_col: str, weight_col: str, group_by: list=None)`**: Calculates weighted average.
   *Usage*: `df = Transform.weighted_average(df, "Price", "Volume", ["Category"])`
 
-### ðŸ“ Parse Palette
+### 📝 Parse Palette
 
 - **`Parse.date_time(df, column: str, format: str)`**: Converts strings to DateTime.
   *Usage*: `df = Parse.date_time(df, "DateStr", "%Y-%m-%d")`
@@ -213,7 +213,7 @@ Below is a detailed breakdown of every tool available in etlpipe, complete with 
 - **`Parse.xml_parse(df, column: str)`**: Extracts XML nodes and flattens child tags.
   *Usage*: `df = Parse.xml_parse(df, "XMLPayload")`
 
-### ðŸ› ï¸ Developer Palette
+### 🛠️ Developer Palette
 
 - **`Developer.base64_encode(df, column: str)`**: Encodes strings to Base64.
   *Usage*: `df = Developer.base64_encode(df, "SecretString")`
@@ -238,32 +238,32 @@ Below is a detailed breakdown of every tool available in etlpipe, complete with 
 
 ## Usage Scenarios
 
-etlpipe easily fits into real-world enterprise architectures.
+Etlpipe easily fits into real-world enterprise architectures.
 
 ### 1. Traditional ETL / ELT
 Extract data from S3 (`InOut.input_data`), clean out nulls (`Preparation.data_cleansing`), join with dimensional data (`Join.join`), aggregate to a summary level (`Transform.summarize`), and load to a data warehouse (`InOut.output_data`).
 
 ### 2. Machine Learning Pipelines
-Use etlpipe as the data preparation layer for ML pipelines.
+Use Etlpipe as the data preparation layer for ML pipelines.
 - Standardize features using `Preparation.formula`.
 - Create holdout sets using `Preparation.create_samples`.
 - Balance datasets using `Preparation.oversample_field`.
 
 ### 3. Financial Analytics & Reporting
-etlpipe is commonly used in finance to replicate complicated legacy spreadsheets or visual ETL workflows, providing strict `Developer.test` validations before outputting month-end financial reporting.
+Etlpipe is commonly used in finance to replicate complicated legacy spreadsheets or visual ETL workflows, providing strict `Developer.test` validations before outputting month-end financial reporting.
 
 ---
 
 ## Advanced Features
 
 ### Scalability and Distributed Execution
-Because etlpipe can switch to a `spark` backend dynamically, it scales infinitely. When the PySpark engine is active, etlpipe utilizes native Spark SQL, Vectorized Pandas UDFs (Arrow), and lazy evaluation to optimize execution over massive datasets on a cluster.
+Because Etlpipe can switch to a `spark` backend dynamically, it scales infinitely. When the PySpark engine is active, Etlpipe utilizes native Spark SQL, Vectorized Pandas UDFs (Arrow), and lazy evaluation to optimize execution over massive datasets on a cluster.
 
 ### Fault Tolerance
-By keeping operations completely stateless and pure, etlpipe gracefully handles retry logic. If an Airflow task running a etlpipe step fails due to transient network issues, the step can safely be rerun without causing data corruption or state duplication.
+By keeping operations completely stateless and pure, Etlpipe gracefully handles retry logic. If an Airflow task running a Etlpipe step fails due to transient network issues, the step can safely be rerun without causing data corruption or state duplication.
 
 ### Integration with Other Systems
-- **Databases**: Database connectivity can be achieved by passing a `pandas.read_sql()` result to etlpipe, or using Spark JDBC with the `spark` backend.
+- **Databases**: Database connectivity can be achieved by passing a `pandas.read_sql()` result to Etlpipe, or using Spark JDBC with the `spark` backend.
 - **Orchestration**: Wrap YAML pipelines in bash operators, or Python API code in standard Python functions.
 - **Secret Management**: Pass standard connection strings populated by AWS Secrets Manager or HashiCorp Vault.
 
@@ -349,12 +349,12 @@ steps:
 
 ---
 
-## ðŸ”„ Visual Workflow Converter (`etlpipe-convert`)
+## 🔄 Visual Workflow Converter (`etlpipe-convert`)
 
-etlpipe includes an automated CLI tool to parse `.yxmd` XML visual workflows and auto-generate etlpipe YAML pipelines:
+Etlpipe includes an automated CLI tool to parse `.yxmd` XML visual workflows and auto-generate Etlpipe YAML pipelines:
 
 ```bash
-# Convert a .yxmd file into a etlpipe YAML pipeline
+# Convert a .yxmd file into a Etlpipe YAML pipeline
 etlpipe-convert my_workflow.yxmd -o my_pipeline.yaml
 
 # Dry-run mode to preview converted YAML in stdout
@@ -372,9 +372,9 @@ converter.save("my_pipeline.yaml")
 
 ---
 
-## ðŸ›¡ï¸ Data Governance & Quality (`etlpipe-governance`)
+## 🛡️ Data Governance & Quality (`etlpipe-governance`)
 
-etlpipe comes with enterprise-grade data quality, PII detection, masking, and schema contract tools built-in (also available as the standalone package `etlpipe-governance`).
+Etlpipe comes with enterprise-grade data quality, PII detection, masking, and schema contract tools built-in (also available as the standalone package `etlpipe-governance`).
 
 ### 1. PII Detection & Compliance Masking (`scan_pii` / `mask_pii`)
 Detect Personally Identifiable Information across 12 international pattern types (email, phone, SSN, credit card, Aadhaar, IBAN, passport, IP address) and apply masking strategies:
@@ -435,10 +435,10 @@ print(audit_report[["Contract", "Status", "Violation_Count"]])
 ## Troubleshooting & FAQ
 
 **Q: I get a MemoryError when processing a large file locally.**
-*A: etlpipe automatically mitigates this by utilizing the `pyarrow` multi-threaded C++ engine for CSVs, which significantly reduces RAM footprint. If your data is so massive it still exceeds physical RAM despite PyArrow, you must switch to the `spark` backend on a distributed cluster.*
+*A: Etlpipe automatically mitigates this by utilizing the `pyarrow` multi-threaded C++ engine for CSVs, which significantly reduces RAM footprint. If your data is so massive it still exceeds physical RAM despite PyArrow, you must switch to the `spark` backend on a distributed cluster.*
 
-**Q: How do I handle missing etlpipe tools?**
-*A: etlpipe covers all core data preparation tools. Tools related to reporting (Render, Charting) or physical pipeline infrastructure (Block Until Done) are deliberately excluded. If you need bespoke logic, use a standard Python script step.*
+**Q: How do I handle missing Etlpipe tools?**
+*A: Etlpipe covers all core data preparation tools. Tools related to reporting (Render, Charting) or physical pipeline infrastructure (Block Until Done) are deliberately excluded. If you need bespoke logic, use a standard Python script step.*
 
 **Q: `Join.join` returns three DataFrames. Which one do I want?**
 *A: By standard convention, a Join returns Left Unjoined (L), Joined (J), and Right Unjoined (R). Typically, you want the Joined DataFrame (the 2nd item in the tuple).*
@@ -447,9 +447,9 @@ print(audit_report[["Contract", "Status", "Violation_Count"]])
 
 ---
 
-## ðŸ§ª Testing & Development
+## 🧪 Testing & Development
 
-etlpipe boasts an extensive test suite verifying 1:1 parity with visual ETL tools. 
+Etlpipe boasts an extensive test suite verifying 1:1 parity with visual ETL tools. 
 
 ```bash
 # Clone the repository
@@ -463,10 +463,10 @@ pip install -e ".[dev]"
 pytest tests/ -v --cov=etlpipe --cov-report=term-missing
 ```
 
-## ðŸ¤ Contributing
+## 🤝 Contributing
 
-Contributions are heavily encouraged! etlpipe is community-driven. If you find a missing edge-case, want to optimize a pandas operation, or want to add support for a new community marketplace tool, please open an issue or submit a pull request on GitHub!
+Contributions are heavily encouraged! Etlpipe is community-driven. If you find a missing edge-case, want to optimize a pandas operation, or want to add support for a new community marketplace tool, please open an issue or submit a pull request on GitHub!
 
-## ðŸ“„ License
+## 📄 License
 
-[MIT License](LICENSE) â€” see the [LICENSE](LICENSE) file for details.
+[MIT License](LICENSE) — see the [LICENSE](LICENSE) file for details.

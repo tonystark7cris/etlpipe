@@ -1,4 +1,4 @@
-﻿"""Join â€” Data blending tools.
+"""Join — Data blending tools.
 
 **Join** tool palette: inner/outer joins, unions,
 find-replace, cross joins, and fuzzy matching.
@@ -14,7 +14,7 @@ import pandas as pd
 
 
 class Join:
-    """etlpipe **Join** tool palette.
+    """Etlpipe **Join** tool palette.
 
     Provides static methods for merging, stacking, and matching
     DataFrames.
@@ -32,7 +32,7 @@ class Join:
         right_on: str | Sequence[str] | None = None,
         suffixes: tuple[str, str] = ("_left", "_right"),
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """Merge two DataFrames and return all three etlpipe anchors.
+        """Merge two DataFrames and return all three Etlpipe anchors.
 
         Args:
             left: Left DataFrame.
@@ -44,7 +44,7 @@ class Join:
 
         Returns:
             A 3-tuple ``(left_unjoined, joined, right_unjoined)``
-            matching etlpipe's **L**, **J**, **R** output anchors.
+            matching Etlpipe's **L**, **J**, **R** output anchors.
 
         Example:
             >>> L, J, R = Join.join(orders, customers, on="CustomerID")
@@ -211,7 +211,7 @@ class Join:
             right: Right DataFrame.
             left_on: String column in *left* to match.
             right_on: String column in *right* to match.
-            threshold: Minimum similarity score (0.0 â€“ 1.0) for a match.
+            threshold: Minimum similarity score (0.0 – 1.0) for a match.
             score_column: Name of the output score column.
 
         Returns:

@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.transform â€” Transform class."""
+"""Tests for etlpipe.transform — Transform class."""
 
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ class TestTranspose:
         result = Transform.transpose(df, key_columns="ID", data_columns=["Q1", "Q2"])
         assert "Name" in result.columns
         assert "Value" in result.columns
-        assert len(result) == 4  # 2 IDs Ã— 2 quarters
+        assert len(result) == 4  # 2 IDs × 2 quarters
 
     def test_default_data_columns(self) -> None:
         df = pd.DataFrame({"ID": [1, 2], "Q1": [10, 20], "Q2": [30, 40]})

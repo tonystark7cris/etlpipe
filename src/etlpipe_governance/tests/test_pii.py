@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe_governance.pii â€” PII detection and masking."""
+"""Tests for etlpipe_governance.pii — PII detection and masking."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def pii_report(pii_df) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# scan_pii â€” detection tests (same as original)
+# scan_pii — detection tests (same as original)
 # ---------------------------------------------------------------------------
 
 
@@ -159,7 +159,7 @@ class TestPIIDetection:
 
 
 # ---------------------------------------------------------------------------
-# mask_pii â€” redact strategy
+# mask_pii — redact strategy
 # ---------------------------------------------------------------------------
 
 
@@ -213,7 +213,7 @@ class TestMaskPiiRedact:
 
 
 # ---------------------------------------------------------------------------
-# mask_pii â€” hash strategy
+# mask_pii — hash strategy
 # ---------------------------------------------------------------------------
 
 
@@ -254,7 +254,7 @@ class TestMaskPiiHash:
 
 
 # ---------------------------------------------------------------------------
-# mask_pii â€” pseudonymise strategy
+# mask_pii — pseudonymise strategy
 # ---------------------------------------------------------------------------
 
 
@@ -272,7 +272,7 @@ class TestMaskPiiPseudonymise:
 
     def test_pseudonymise_mapping_invertible(self, pii_df, pii_report):
         masked_df, mapping = mask_pii(pii_df, pii_report, strategy="pseudonymise")
-        # mapping[col][original] = pseudo  â†’  we can rebuild the original
+        # mapping[col][original] = pseudo  →  we can rebuild the original
         for col, col_map in mapping.items():
             inv = {v: k for k, v in col_map.items()}
             for i, row_val in enumerate(masked_df[col]):

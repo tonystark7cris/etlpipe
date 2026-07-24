@@ -1,9 +1,9 @@
-﻿"""Preparation â€” Data preparation tools.
+"""Preparation — Data preparation tools.
 
 **Preparation** tool palette: filtering, sorting,
 cleaning, formulas, sampling, tiling, imputation and more.
 
-All methods are static and return **new** DataFrames â€” originals are
+All methods are static and return **new** DataFrames — originals are
 never mutated.
 """
 
@@ -16,7 +16,7 @@ import pandas as pd
 
 
 class Preparation:
-    """etlpipe **Preparation** tool palette.
+    """Etlpipe **Preparation** tool palette.
 
     Provides static methods for data cleansing, filtering, sorting,
     sampling, formula evaluation, and other row/column transformations.
@@ -209,7 +209,7 @@ class Preparation:
             ignore_case: Whether to ignore case for string columns.
 
         Returns:
-            A tuple ``(unique_df, duplicate_df)`` matching etlpipe's
+            A tuple ``(unique_df, duplicate_df)`` matching Etlpipe's
             **U** and **D** output anchors.
 
         Example:
@@ -236,9 +236,9 @@ class Preparation:
         Args:
             df: The input DataFrame.
             n: Number of rows. Mutually exclusive with *pct*.
-            pct: Fraction of rows (0.0 â€“ 1.0). Mutually exclusive with *n*.
+            pct: Fraction of rows (0.0 – 1.0). Mutually exclusive with *n*.
             random: If ``True`` and *n* is set, sample randomly.
-            position: ``"first"`` (default) or ``"last"`` â€” ignored when
+            position: ``"first"`` (default) or ``"last"`` — ignored when
                 *random* is ``True``.
             random_state: Seed for reproducible random sampling.
 

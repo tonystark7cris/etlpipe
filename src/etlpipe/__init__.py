@@ -1,4 +1,4 @@
-﻿"""etlpipe â€” The fastest path from proprietary visual ETL to open-source Python.
+"""etlpipe — The fastest path from proprietary visual ETL to open-source Python.
 
 Accelerates migration from legacy visual ETL tools to
 open-source Python by providing 1:1 tool palette mappings (Preparation, Join,

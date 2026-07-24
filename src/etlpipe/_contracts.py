@@ -1,4 +1,4 @@
-﻿"""Data contract validation â€” backward-compatibility shim.
+"""Data contract validation — backward-compatibility shim.
 
 The schema contract implementation has moved to the ``etlpipe-governance``
 sub-package.  This module re-exports everything from there so that all

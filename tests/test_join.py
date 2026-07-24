@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.join â€” Join class."""
+"""Tests for etlpipe.join — Join class."""
 
 from __future__ import annotations
 
@@ -156,7 +156,7 @@ class TestAppendFields:
         df1 = pd.DataFrame({"Size": ["S", "M"]})
         df2 = pd.DataFrame({"Color": ["Red", "Blue"]})
         result = Join.append_fields(df1, df2)
-        assert len(result) == 4  # 2 Ã— 2
+        assert len(result) == 4  # 2 × 2
 
 
 class TestFuzzyMatch:

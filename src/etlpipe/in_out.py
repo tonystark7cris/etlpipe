@@ -1,9 +1,9 @@
-﻿"""InOut â€” Input / Output tools.
+"""InOut — Input / Output tools.
 
 **In/Out** tool palette: reading, writing, browsing,
 and generating data from external sources.
 
-All methods are static â€” no hidden instance state.
+All methods are static — no hidden instance state.
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ _WRITERS: dict[str, str] = {
 
 
 class InOut:
-    """etlpipe **In/Out** tool palette.
+    """Etlpipe **In/Out** tool palette.
 
     Provides static methods for reading, writing, browsing, and creating
     DataFrames from various data sources.
@@ -138,9 +138,9 @@ class InOut:
 
         Args:
             data: Data supplied as:
-                - ``dict[str, list]`` â€” column-oriented
-                - ``list[dict]`` â€” row-oriented records
-                - ``list[list | tuple]`` â€” rows (requires *columns*)
+                - ``dict[str, list]`` — column-oriented
+                - ``list[dict]`` — row-oriented records
+                - ``list[list | tuple]`` — rows (requires *columns*)
             columns: Column names when *data* is a list of lists/tuples.
 
         Returns:

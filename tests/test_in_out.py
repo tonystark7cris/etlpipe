@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.in_out â€” InOut class."""
+"""Tests for etlpipe.in_out — InOut class."""
 
 from __future__ import annotations
 

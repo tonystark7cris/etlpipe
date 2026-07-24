@@ -1,4 +1,4 @@
-﻿"""Shared pytest fixtures for etlpipe tests."""
+"""Shared pytest fixtures for etlpipe tests."""
 
 from __future__ import annotations
 

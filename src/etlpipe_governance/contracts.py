@@ -1,15 +1,15 @@
-﻿"""Schema contracts, statistical profiling, and audit suites.
+"""Schema contracts, statistical profiling, and audit suites.
 
 Provides three complementary tools for enterprise data quality:
 
-1. **Schema Contracts** â€” enforce declared column dtypes and nullability
+1. **Schema Contracts** — enforce declared column dtypes and nullability
    constraints at pipeline boundaries.  Raises on violations so bad data
    never silently propagates.
 
-2. **Statistical Profiler** â€” go beyond dtypes with per-column cardinality,
+2. **Statistical Profiler** — go beyond dtypes with per-column cardinality,
    null-rate, min/max/mean, and top-N value distributions.
 
-3. **ContractSuite** â€” compose multiple schema checks into a single audit
+3. **ContractSuite** — compose multiple schema checks into a single audit
    run, producing a combined pass/fail report suitable for data governance
    dashboards and pipeline observability.
 
@@ -199,7 +199,7 @@ def expect_schema(
 
     column_specs = schema.get("columns", {})
     if not column_specs:
-        logger.warning("Schema contract has no column definitions â€” skipping validation.")
+        logger.warning("Schema contract has no column definitions — skipping validation.")
         return df
 
     violations: list[str] = []
@@ -239,7 +239,7 @@ def expect_schema(
 
 
 # ---------------------------------------------------------------------------
-# profile  â€” richer than infer_schema, competitive with ydata-profiling
+# profile  — richer than infer_schema, competitive with ydata-profiling
 # ---------------------------------------------------------------------------
 
 
@@ -265,18 +265,18 @@ def profile(
     Returns:
         A DataFrame where each row describes one column.  Columns:
 
-        - ``Column`` â€” column name
-        - ``Dtype`` â€” pandas dtype string
-        - ``Row_Count`` â€” total rows
-        - ``Null_Count`` â€” number of nulls
-        - ``Null_Rate_Pct`` â€” null percentage (0â€“100)
-        - ``Unique_Count`` â€” distinct non-null values
-        - ``Cardinality_Pct`` â€” unique / non-null as a percentage
-        - ``Min`` â€” minimum value (numeric only, else ``None``)
-        - ``Max`` â€” maximum value (numeric only, else ``None``)
-        - ``Mean`` â€” mean value (numeric only, else ``None``)
-        - ``Std`` â€” std deviation (numeric only, else ``None``)
-        - ``Top_Values`` â€” top *top_n* values as ``"val (N)"`` strings
+        - ``Column`` — column name
+        - ``Dtype`` — pandas dtype string
+        - ``Row_Count`` — total rows
+        - ``Null_Count`` — number of nulls
+        - ``Null_Rate_Pct`` — null percentage (0–100)
+        - ``Unique_Count`` — distinct non-null values
+        - ``Cardinality_Pct`` — unique / non-null as a percentage
+        - ``Min`` — minimum value (numeric only, else ``None``)
+        - ``Max`` — maximum value (numeric only, else ``None``)
+        - ``Mean`` — mean value (numeric only, else ``None``)
+        - ``Std`` — std deviation (numeric only, else ``None``)
+        - ``Top_Values`` — top *top_n* values as ``"val (N)"`` strings
 
     Raises:
         TypeError: If *df* is not a pandas DataFrame.
@@ -341,7 +341,7 @@ def profile(
 
 
 # ---------------------------------------------------------------------------
-# ContractSuite â€” batch contract runner for pipeline audit checkpoints
+# ContractSuite — batch contract runner for pipeline audit checkpoints
 # ---------------------------------------------------------------------------
 
 
@@ -433,13 +433,13 @@ class ContractSuite:
         Returns:
             A DataFrame with one row per contract containing:
 
-            - ``Suite`` â€” the suite name
-            - ``Contract`` â€” the contract ID
-            - ``Description`` â€” the human-readable description
-            - ``Status`` â€” ``"PASS"`` or ``"FAIL"`` or ``"SKIPPED"``
+            - ``Suite`` — the suite name
+            - ``Contract`` — the contract ID
+            - ``Description`` — the human-readable description
+            - ``Status`` — ``"PASS"`` or ``"FAIL"`` or ``"SKIPPED"``
                 (if the DataFrame was not provided)
-            - ``Violation_Count`` â€” number of violations found (0 on pass)
-            - ``Violations`` â€” newline-joined list of violation messages
+            - ``Violation_Count`` — number of violations found (0 on pass)
+            - ``Violations`` — newline-joined list of violation messages
 
         Raises:
             SchemaViolationError: If *raise_on_failure* is ``True`` and any
@@ -469,7 +469,7 @@ class ContractSuite:
                     }
                 )
                 logger.warning(
-                    "Suite '%s': contract '%s' skipped â€” no DataFrame provided.",
+                    "Suite '%s': contract '%s' skipped — no DataFrame provided.",
                     self.name,
                     contract_id,
                 )

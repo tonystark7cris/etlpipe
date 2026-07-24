@@ -1,6 +1,6 @@
-﻿"""convert â€” .yxmd XML workflow to etlpipe YAML converter.
+"""convert — .yxmd XML workflow to Etlpipe YAML converter.
 
-Converts .yxmd visual workflow files into etlpipe pipeline
+Converts .yxmd visual workflow files into Etlpipe pipeline
 YAML files that can be executed with ``etlpipe run``.
 
 CLI usage::
@@ -18,9 +18,9 @@ Python API::
 
 Legal notice:
     .yxmd files are plain XML owned by the user who created them.
-    This converter reads only the file format â€” it does not use, embed,
+    This converter reads only the file format — it does not use, embed,
     or depend on any proprietary code, SDK, or runtime.
-    etlpipe is a standalone, open-source project and is not affiliated
+    Etlpipe is a standalone, open-source project and is not affiliated
     with or endorsed by any proprietary software vendor.
 """
 
@@ -40,11 +40,11 @@ import yaml
 logger = logging.getLogger("etlpipe.convert")
 
 # ---------------------------------------------------------------------------
-# .yxmd plugin â†’ etlpipe tool mapping
+# .yxmd plugin → Etlpipe tool mapping
 # ---------------------------------------------------------------------------
 # Keys are the *short* plugin class name extracted from the fully-qualified
 # plugin string, e.g.:
-#   "BasePluginsGui.DbFileInput.DbFileInput"  â†’ "DbFileInput"
+#   "BasePluginsGui.DbFileInput.DbFileInput"  → "DbFileInput"
 #
 # Values are callables that accept an ElementTree <Node> element and return
 # a (tool_str, args_dict, notes_list) triple.
@@ -79,7 +79,7 @@ def _map_input(node_el) -> tuple[str, dict, list[str]]:
             file_path = _text(cfg, "./Alias")
     if not file_path:
         file_path = "TODO_set_input_path.csv"
-        notes.append("âš  Could not read file path â€” please set 'path' manually.")
+        notes.append("⚠ Could not read file path — please set 'path' manually.")
     return "InOut.input_data", {"path": file_path}, notes
 
 
@@ -93,7 +93,7 @@ def _map_output(node_el) -> tuple[str, dict, list[str]]:
             file_path = _text(cfg, "./Alias")
     if not file_path:
         file_path = "TODO_set_output_path.csv"
-        notes.append("âš  Could not read file path â€” please set 'path' manually.")
+        notes.append("⚠ Could not read file path — please set 'path' manually.")
     return "InOut.output_data", {"path": file_path}, notes
 
 
@@ -110,7 +110,7 @@ def _map_filter(node_el) -> tuple[str, dict, list[str]]:
             condition = _text(cfg, "./Expression")
     if not condition:
         condition = "TODO_set_filter_condition"
-        notes.append("âš  Filter condition could not be parsed â€” set 'condition' manually.")
+        notes.append("⚠ Filter condition could not be parsed — set 'condition' manually.")
     return "Preparation.filter", {"condition": condition}, notes
 
 
@@ -127,7 +127,7 @@ def _map_sort(node_el) -> tuple[str, dict, list[str]]:
                 columns.append(col)
                 ascending.append(order.lower() != "descending")
     if not columns:
-        notes.append("âš  Sort columns could not be detected â€” set 'columns' manually.")
+        notes.append("⚠ Sort columns could not be detected — set 'columns' manually.")
         return "Preparation.sort", {"columns": ["TODO_column"], "ascending": True}, notes
     return (
         "Preparation.sort",
@@ -172,7 +172,7 @@ def _map_select(node_el) -> tuple[str, dict, list[str]]:
     if dtypes:
         args["dtypes"] = dtypes
     if not args:
-        notes.append("âš  Select columns could not be detected â€” configure manually.")
+        notes.append("⚠ Select columns could not be detected — configure manually.")
 
     return "Preparation.select", args, notes
 
@@ -180,7 +180,7 @@ def _map_select(node_el) -> tuple[str, dict, list[str]]:
 def _map_formula(node_el) -> tuple[str, dict, list[str]]:
     cfg = _get_config(node_el)
     notes = []
-    # Formula nodes can compute multiple fields â€” we emit one step per field
+    # Formula nodes can compute multiple fields — we emit one step per field
     # and return only the last one as the primary step (earlier ones are
     # stored as sub-steps which the caller handles by noting them in comments).
     formulas = []
@@ -192,12 +192,12 @@ def _map_formula(node_el) -> tuple[str, dict, list[str]]:
                 formulas.append((col, _translate_yxmd_expression(expr)))
 
     if not formulas:
-        notes.append("âš  Formula expression not detected â€” configure 'column' and 'expression' manually.")
+        notes.append("⚠ Formula expression not detected — configure 'column' and 'expression' manually.")
         return "Preparation.formula", {"column": "TODO_column", "expression": "TODO_expression"}, notes
 
     if len(formulas) > 1:
         notes.append(
-            f"â„¹ This tool computes {len(formulas)} fields. Only the last is shown; "
+            f"ℹ This tool computes {len(formulas)} fields. Only the last is shown; "
             "chain additional Preparation.formula steps for the others: " + str([f[0] for f in formulas[:-1]])
         )
 
@@ -234,7 +234,7 @@ def _map_summarize(node_el) -> tuple[str, dict, list[str]]:
                 aggregations[col] = _AGG_MAP[action]
             else:
                 aggregations[col] = action.lower()
-                notes.append(f"âš  Unmapped aggregation '{action}' on '{col}' â€” verify manually.")
+                notes.append(f"⚠ Unmapped aggregation '{action}' on '{col}' — verify manually.")
 
     args: dict[str, Any] = {}
     if group_by:
@@ -257,9 +257,9 @@ def _map_join(node_el) -> tuple[str, dict, list[str]]:
     if join_keys:
         args["on"] = join_keys if len(join_keys) > 1 else join_keys[0]
     else:
-        notes.append("âš  Join key columns not detected â€” set 'on', 'left_on', or 'right_on' manually.")
+        notes.append("⚠ Join key columns not detected — set 'on', 'left_on', or 'right_on' manually.")
     notes.append(
-        "â„¹ Join.join returns (left_unjoined, joined, right_unjoined). Reference the joined anchor with '<step_id>.1'."
+        "ℹ Join.join returns (left_unjoined, joined, right_unjoined). Reference the joined anchor with '<step_id>.1'."
     )
     return "Join.join", args, notes
 
@@ -273,7 +273,7 @@ def _map_union(node_el) -> tuple[str, dict, list[str]]:
         if "position" in mode_attr.lower():
             mode = "position"
     notes.append(
-        "â„¹ Union.union accepts *dfs as positional args. "
+        "ℹ Union.union accepts *dfs as positional args. "
         "Adjust the 'inputs' section to include all input step references."
     )
     return "Join.union", {"by": mode}, notes
@@ -289,7 +289,7 @@ def _map_unique(node_el) -> tuple[str, dict, list[str]]:
             if col:
                 cols.append(col)
     if not cols:
-        notes.append("âš  Unique columns not detected â€” set 'columns' manually.")
+        notes.append("⚠ Unique columns not detected — set 'columns' manually.")
         return "Preparation.unique", {"columns": ["TODO_column"]}, notes
     return "Preparation.unique", {"columns": cols if len(cols) > 1 else cols[0]}, notes
 
@@ -307,7 +307,7 @@ def _map_sample(node_el) -> tuple[str, dict, list[str]]:
                 return "Preparation.sample", {"pct": float(pct_str) / 100.0}, notes
             except ValueError:
                 pass
-    notes.append("âš  Sample size could not be detected â€” set 'n' or 'pct' manually.")
+    notes.append("⚠ Sample size could not be detected — set 'n' or 'pct' manually.")
     return "Preparation.sample", {"n": 1000}, notes
 
 
@@ -359,7 +359,7 @@ def _map_running_total(node_el) -> tuple[str, dict, list[str]]:
             args["group_by"] = grp_fields if len(grp_fields) > 1 else grp_fields[0]
     if "column" not in args:
         args["column"] = "TODO_column"
-        notes.append("âš  Running total column not detected â€” set 'column' manually.")
+        notes.append("⚠ Running total column not detected — set 'column' manually.")
     return "Transform.running_total", args, notes
 
 
@@ -384,7 +384,7 @@ def _map_cross_tab(node_el) -> tuple[str, dict, list[str]]:
         agg = _text(cfg, "./Method")
         if agg:
             args["agg"] = agg.lower()
-    notes.append("âš  Verify cross_tab args match your workflow's configuration.")
+    notes.append("⚠ Verify cross_tab args match your workflow's configuration.")
     return "Transform.cross_tab", args, notes
 
 
@@ -410,7 +410,7 @@ def _map_transpose(node_el) -> tuple[str, dict, list[str]]:
 
 def _map_text_input(node_el) -> tuple[str, dict, list[str]]:
     notes = [
-        "â„¹ Text Input inline data is not extracted; replace with InOut.input_data or InOut.text_input with inline data."
+        "ℹ Text Input inline data is not extracted; replace with InOut.input_data or InOut.text_input with inline data."
     ]
     return "InOut.text_input", {"data": {"TODO_column": ["TODO_value"]}}, notes
 
@@ -420,12 +420,12 @@ def _map_browse(node_el) -> tuple[str, dict, list[str]]:
 
 
 def _map_append_fields(node_el) -> tuple[str, dict, list[str]]:
-    notes = ["â„¹ Join.append_fields is a cross join. Set 'left' and 'right' inputs referencing upstream step IDs."]
+    notes = ["ℹ Join.append_fields is a cross join. Set 'left' and 'right' inputs referencing upstream step IDs."]
     return "Join.append_fields", {}, notes
 
 
 def _map_fuzzy_match(node_el) -> tuple[str, dict, list[str]]:
-    notes = ["âš  Set 'left_on' and 'right_on' column names manually."]
+    notes = ["⚠ Set 'left_on' and 'right_on' column names manually."]
     return "Join.fuzzy_match", {"left_on": "TODO_left_col", "right_on": "TODO_right_col"}, notes
 
 
@@ -437,7 +437,7 @@ def _map_imputation(node_el) -> tuple[str, dict, list[str]]:
         method = _text(cfg, "./Method")
         if method:
             args["method"] = method.lower()
-    notes.append("âš  Set 'columns' to the column(s) to impute.")
+    notes.append("⚠ Set 'columns' to the column(s) to impute.")
     return "Preparation.imputation", args, notes
 
 
@@ -466,12 +466,12 @@ def _map_generate_rows(node_el) -> tuple[str, dict, list[str]]:
         n_str = _text(cfg, "./NumRows")
         if n_str.isdigit():
             count = int(n_str)
-    notes.append("â„¹ Generate Rows: provide an 'expression' callable if needed.")
+    notes.append("ℹ Generate Rows: provide an 'expression' callable if needed.")
     return "Preparation.generate_rows", {"count": count}, notes
 
 
 # ---------------------------------------------------------------------------
-# Plugin â†’ mapper dispatch table
+# Plugin → mapper dispatch table
 # ---------------------------------------------------------------------------
 _PLUGIN_MAP: dict[str, callable] = {
     # In/Out
@@ -480,7 +480,7 @@ _PLUGIN_MAP: dict[str, callable] = {
     "TextInput": _map_text_input,
     "DbFileOutput": _map_output,
     "Browse": _map_browse,
-    "DirectoryV2": lambda n: ("InOut.directory", {"path": "TODO_directory_path"}, ["âš  Set 'path' manually."]),
+    "DirectoryV2": lambda n: ("InOut.directory", {"path": "TODO_directory_path"}, ["⚠ Set 'path' manually."]),
     # Preparation
     "Filter": _map_filter,
     "Sort": _map_sort,
@@ -488,12 +488,12 @@ _PLUGIN_MAP: dict[str, callable] = {
     "MultiFieldFormula": lambda n: (
         "Preparation.multi_field_formula",
         {"columns": ["TODO_column"], "expression": "TODO_expression"},
-        ["âš  Set 'columns' and 'expression' manually."],
+        ["⚠ Set 'columns' and 'expression' manually."],
     ),
     "MultiRowFormula": lambda n: (
         "Preparation.multi_row_formula",
         {"column": "TODO_column", "expression": "TODO_expression"},
-        ["âš  Set 'column' and 'expression' manually."],
+        ["⚠ Set 'column' and 'expression' manually."],
     ),
     "Unique": _map_unique,
     "Sample": _map_sample,
@@ -506,13 +506,13 @@ _PLUGIN_MAP: dict[str, callable] = {
     "DateFilter": lambda n: (
         "Preparation.date_filter",
         {"column": "TODO_date_column"},
-        ["âš  Set 'column', 'start_date', 'end_date' manually."],
+        ["⚠ Set 'column', 'start_date', 'end_date' manually."],
     ),
-    "Rank": lambda n: ("Preparation.rank", {"column": "TODO_column"}, ["âš  Set 'column' manually."]),
+    "Rank": lambda n: ("Preparation.rank", {"column": "TODO_column"}, ["⚠ Set 'column' manually."]),
     "OversampleField": lambda n: (
         "Preparation.oversample_field",
         {"column": "TODO_column", "value": "TODO_value"},
-        ["âš  Set 'column' and 'value' manually."],
+        ["⚠ Set 'column' and 'value' manually."],
     ),
     # Join / Blend
     "Join": _map_join,
@@ -521,13 +521,13 @@ _PLUGIN_MAP: dict[str, callable] = {
     "FindReplace": lambda n: (
         "Join.find_replace",
         {"find_col": "TODO_find_col", "replace_col": "TODO_replace_col"},
-        ["âš  Set 'find_col' and 'replace_col' manually."],
+        ["⚠ Set 'find_col' and 'replace_col' manually."],
     ),
     "FuzzyMatch": _map_fuzzy_match,
     "MakeGroup": lambda n: (
         "Join.make_group",
         {"key1": "TODO_key1", "key2": "TODO_key2"},
-        ["âš  Set 'key1' and 'key2' manually."],
+        ["⚠ Set 'key1' and 'key2' manually."],
     ),
     # Transform
     "Summarize": _map_summarize,
@@ -536,21 +536,21 @@ _PLUGIN_MAP: dict[str, callable] = {
     "RunningTotal": _map_running_total,
     "CountRecords": lambda n: ("Transform.count_records", {}, []),
     # Parse
-    "DateTime": lambda n: ("Parse.date_time", {"column": "TODO_column"}, ["âš  Set 'column' manually."]),
+    "DateTime": lambda n: ("Parse.date_time", {"column": "TODO_column"}, ["⚠ Set 'column' manually."]),
     "RegExTool": lambda n: (
         "Parse.regex_match",
         {"column": "TODO_column", "pattern": "TODO_pattern"},
-        ["âš  Set 'column' and 'pattern' manually."],
+        ["⚠ Set 'column' and 'pattern' manually."],
     ),
     "TextToColumns": lambda n: (
         "Parse.text_to_columns",
         {"column": "TODO_column", "delimiter": ","},
-        ["âš  Set 'column' and 'delimiter' manually."],
+        ["⚠ Set 'column' and 'delimiter' manually."],
     ),
     "XmlParse": lambda n: (
         "Parse.xml_parse",
         {"column": "TODO_column", "xpath": "TODO_xpath"},
-        ["âš  Set 'column' and 'xpath' manually."],
+        ["⚠ Set 'column' and 'xpath' manually."],
     ),
 }
 
@@ -558,7 +558,7 @@ _PLUGIN_MAP: dict[str, callable] = {
 def _extract_plugin_short_name(plugin_str: str) -> str:
     """Extract the short class name from a plugin string.
 
-    e.g. 'BasePluginsGui.DbFileInput.DbFileInput' â†’ 'DbFileInput'
+    e.g. 'BasePluginsGui.DbFileInput.DbFileInput' → 'DbFileInput'
     """
     parts = plugin_str.split(".")
     short = parts[-1] if parts else plugin_str
@@ -570,7 +570,7 @@ def _extract_plugin_short_name(plugin_str: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Expression translator (best-effort .yxmd formula â†’ pandas query)
+# Expression translator (best-effort .yxmd formula → pandas query)
 # ---------------------------------------------------------------------------
 
 
@@ -596,19 +596,19 @@ def _translate_yxmd_expression(expr: str) -> str:
     result = result.replace("<>", "!=")
     result = result.replace("==", "==")
 
-    # CONTAINS([Col], "val") â†’ Col.str.contains("val")
+    # CONTAINS([Col], "val") → Col.str.contains("val")
     result = re.sub(r"CONTAINS\(\[(\w+)\],\s*\"([^\"]*)\"\)", r'\1.str.contains("\2")', result, flags=re.IGNORECASE)
 
-    # STARTSWITH([Col], "val") â†’ Col.str.startswith("val")
+    # STARTSWITH([Col], "val") → Col.str.startswith("val")
     result = re.sub(r"STARTSWITH\(\[(\w+)\],\s*\"([^\"]*)\"\)", r'\1.str.startswith("\2")', result, flags=re.IGNORECASE)
 
-    # ISNULL([Col]) â†’ Col.isnull()
+    # ISNULL([Col]) → Col.isnull()
     result = re.sub(r"ISNULL\(\[(\w+)\]\)", r"\1.isnull()", result, flags=re.IGNORECASE)
 
-    # ISNOTNULL([Col]) â†’ Col.notna()
+    # ISNOTNULL([Col]) → Col.notna()
     result = re.sub(r"ISNOTNULL\(\[(\w+)\]\)", r"\1.notna()", result, flags=re.IGNORECASE)
 
-    # [FieldName] â†’ FieldName  (strip square brackets)
+    # [FieldName] → FieldName  (strip square brackets)
     result = re.sub(r"\[(\w+)\]", r"\1", result)
 
     return result
@@ -646,7 +646,7 @@ def _map_yxmd_type(yxmd_type: str) -> str | None:
 
 
 class YxmdConverter:
-    """Convert a .yxmd XML workflow file to a etlpipe YAML pipeline.
+    """Convert a .yxmd XML workflow file to a Etlpipe YAML pipeline.
 
     Args:
         source: Path to the .yxmd file.
@@ -660,7 +660,7 @@ class YxmdConverter:
         self.source = Path(source)
         if not self.source.exists():
             raise FileNotFoundError(f"Source file not found: {self.source}")
-        self._nodes: dict[int, dict[str, Any]] = {}  # tool_id â†’ node info
+        self._nodes: dict[int, dict[str, Any]] = {}  # tool_id → node info
         self._connections: list[tuple[int, str, int, str]] = []  # (from_id, from_port, to_id, to_port)
         self._warnings: list[str] = []
         self._parse()
@@ -769,7 +769,7 @@ class YxmdConverter:
             if nid not in order:
                 order.append(nid)
                 self._warnings.append(
-                    f"âš  Tool {nid} ({self._nodes[nid]['short_name']}) is in a cycle or disconnected â€” placed at end."
+                    f"⚠ Tool {nid} ({self._nodes[nid]['short_name']}) is in a cycle or disconnected — placed at end."
                 )
         return order
 
@@ -797,14 +797,14 @@ class YxmdConverter:
     # ------------------------------------------------------------------
 
     def _build_pipeline_dict(self) -> dict[str, Any]:
-        """Build the etlpipe pipeline dict from parsed nodes."""
+        """Build the Etlpipe pipeline dict from parsed nodes."""
         order = self._topological_order()
 
-        # Map tool_id â†’ step_id for building input references
+        # Map tool_id → step_id for building input references
         id_to_step: dict[int, str] = {tid: self._make_step_id(tid) for tid in self._nodes}
 
         # Track which step_ids are upstream producers for each node
-        # to_id â†’ [(from_step_id, to_port)]
+        # to_id → [(from_step_id, to_port)]
         upstream: dict[int, list[tuple[str, str, str]]] = defaultdict(list)
         for from_id, from_port, to_id, to_port in self._connections:
             if from_id in self._nodes and to_id in self._nodes:
@@ -819,7 +819,7 @@ class YxmdConverter:
             short_name = node["short_name"]
             step_id = id_to_step[tool_id]
 
-            # Map plugin to etlpipe tool
+            # Map plugin to Etlpipe tool
             if short_name in _PLUGIN_MAP:
                 mapper = _PLUGIN_MAP[short_name]
                 try:
@@ -827,15 +827,15 @@ class YxmdConverter:
                 except Exception as exc:
                     tool_str = "TODO_tool"
                     args = {}
-                    notes = [f"âš  Mapper error for {short_name}: {exc}"]
+                    notes = [f"⚠ Mapper error for {short_name}: {exc}"]
             else:
                 tool_str = f"TODO_{node['short_name']}"
                 args = {"_plugin": node["plugin"]}
                 notes = [
-                    f"âš  No mapping for plugin '{node['plugin']}'. "
-                    "Replace with equivalent etlpipe tool or custom logic."
+                    f"⚠ No mapping for plugin '{node['plugin']}'. "
+                    "Replace with equivalent Etlpipe tool or custom logic."
                 ]
-                self._warnings.append(f"Unmapped plugin '{short_name}' (ToolID {tool_id}) â€” manual step required.")
+                self._warnings.append(f"Unmapped plugin '{short_name}' (ToolID {tool_id}) — manual step required.")
 
             # Build inputs section from upstream connections
             inputs: dict[str, str] = {}
@@ -873,7 +873,7 @@ class YxmdConverter:
         }
 
     def to_yaml(self) -> str:
-        """Convert the workflow to a etlpipe YAML string.
+        """Convert the workflow to a Etlpipe YAML string.
 
         Returns:
             A YAML string ready to pass to ``etlpipe run`` or save to disk.
@@ -883,12 +883,12 @@ class YxmdConverter:
         workflow_name = data["_name"]
 
         lines: list[str] = [
-            "# etlpipe pipeline â€” auto-generated from .yxmd visual workflow",
+            "# Etlpipe pipeline — auto-generated from .yxmd visual workflow",
             f"# Source: {self.source.name}",
             "# Generator: etlpipe convert (standalone XML workflow converter)",
             "#",
-            "# âš   Review all TODO_ placeholders before running.",
-            "# âš   Steps marked with '# NOTE:' may need manual adjustment.",
+            "# ⚠  Review all TODO_ placeholders before running.",
+            "# ⚠  Steps marked with '# NOTE:' may need manual adjustment.",
             "",
             f"name: {_yaml_str(workflow_name)}",
             "steps:",
@@ -924,7 +924,7 @@ class YxmdConverter:
         """Write the converted YAML to a file.
 
         Args:
-            output_path: Destination path for the etlpipe YAML file.
+            output_path: Destination path for the Etlpipe YAML file.
         """
         out = Path(output_path)
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -944,7 +944,7 @@ class YxmdConverter:
 
     @property
     def coverage(self) -> float:
-        """Fraction of tools (0.0â€“1.0) that have a known etlpipe mapping."""
+        """Fraction of tools (0.0–1.0) that have a known Etlpipe mapping."""
         if not self._nodes:
             return 1.0
         mapped = sum(1 for n in self._nodes.values() if n["short_name"] in _PLUGIN_MAP)
@@ -960,13 +960,13 @@ def _make_output_ref(step_id: str, from_port: str) -> str:
     """Build a pipeline state reference string.
 
     Visual workflow output anchors:
-    - Standard Output / Output / True / T â†’ index 0 (or no suffix if single output)
-    - False / F â†’ index 1
-    - Left / L â†’ index 0
-    - Joined / J â†’ index 1
-    - Right / R â†’ index 2
-    - Unique / U â†’ index 0
-    - Duplicate / D â†’ index 1
+    - Standard Output / Output / True / T → index 0 (or no suffix if single output)
+    - False / F → index 1
+    - Left / L → index 0
+    - Joined / J → index 1
+    - Right / R → index 2
+    - Unique / U → index 0
+    - Duplicate / D → index 1
     """
     _PORT_INDEX = {
         "T": "0",
@@ -1012,7 +1012,7 @@ def convert_cli_main(args_list: list[str] | None = None) -> None:
     """CLI entrypoint for ``etlpipe-convert``."""
     parser = argparse.ArgumentParser(
         prog="etlpipe-convert",
-        description="Convert a .yxmd workflow file to a etlpipe pipeline YAML.",
+        description="Convert a .yxmd workflow file to a Etlpipe pipeline YAML.",
     )
     parser.add_argument("source", type=str, help="Path to the .yxmd workflow file.")
     parser.add_argument(
@@ -1059,15 +1059,15 @@ def convert_cli_main(args_list: list[str] | None = None) -> None:
 
     if args.summary or args.dry_run:
         covered = int(converter.coverage * 100)
-        print(f"\n{'â”€' * 50}", file=sys.stderr)
+        print(f"\n{'─' * 50}", file=sys.stderr)
         print(f"  Source    : {converter.source.name}", file=sys.stderr)
         print(f"  Nodes     : {converter.node_count}", file=sys.stderr)
-        print(f"  Coverage  : {covered}% tools mapped to etlpipe", file=sys.stderr)
+        print(f"  Coverage  : {covered}% tools mapped to Etlpipe", file=sys.stderr)
         if converter.warnings:
             print(f"  Warnings  : {len(converter.warnings)}", file=sys.stderr)
             for w in converter.warnings:
-                print(f"    â€¢ {w}", file=sys.stderr)
-        print(f"{'â”€' * 50}\n", file=sys.stderr)
+                print(f"    • {w}", file=sys.stderr)
+        print(f"{'─' * 50}\n", file=sys.stderr)
 
     if args.dry_run:
         print(yaml_text)
@@ -1077,12 +1077,12 @@ def convert_cli_main(args_list: list[str] | None = None) -> None:
         converter.save(args.output)
         covered = int(converter.coverage * 100)
         print(
-            f"âœ… Converted '{args.source}' â†’ '{args.output}' ({converter.node_count} tools, {covered}% mapped)",
+            f"✅ Converted '{args.source}' → '{args.output}' ({converter.node_count} tools, {covered}% mapped)",
             file=sys.stderr,
         )
         if converter.warnings:
             print(
-                f"âš   {len(converter.warnings)} tools need manual review. Search the output for 'TODO_'.",
+                f"⚠  {len(converter.warnings)} tools need manual review. Search the output for 'TODO_'.",
                 file=sys.stderr,
             )
     else:

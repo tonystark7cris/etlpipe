@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.parse â€” Parse class."""
+"""Tests for etlpipe.parse — Parse class."""
 
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ class TestRegexTokenize:
 
     def test_split_to_rows(self, sample_text_df: pd.DataFrame) -> None:
         result = Parse.regex_tokenize(sample_text_df, "Tags", r",", split_to="rows")
-        # "python,data,ml" â†’ 3 rows, "sql,etl" â†’ 2 rows, "java,spring,boot,api" â†’ 4 rows = 9 total
+        # "python,data,ml" → 3 rows, "sql,etl" → 2 rows, "java,spring,boot,api" → 4 rows = 9 total
         assert len(result) == 9
 
     def test_split_to_columns(self, sample_text_df: pd.DataFrame) -> None:

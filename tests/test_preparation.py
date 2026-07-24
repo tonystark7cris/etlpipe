@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.preparation â€” Preparation class."""
+"""Tests for etlpipe.preparation — Preparation class."""
 
 from __future__ import annotations
 
@@ -213,7 +213,7 @@ class TestUnique:
     def test_unique_split(self, sample_df: pd.DataFrame) -> None:
         uniq, dups = Preparation.unique(sample_df, "City")
         assert len(uniq) + len(dups) == len(sample_df)
-        # Boston and New York both appear twice â†’ 2 duplicates
+        # Boston and New York both appear twice → 2 duplicates
         assert len(dups) == 2
 
     def test_all_unique(self) -> None:

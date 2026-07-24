@@ -1,5 +1,5 @@
-﻿"""
-etlpipe Enterprise Data Pipeline Demo
+"""
+Etlpipe Enterprise Data Pipeline Demo
 ========================================
 Demonstrates running the SAME pipeline logic on both Pandas and PySpark
 backends, with enterprise governance features (PII scanning, data contracts,
@@ -123,11 +123,11 @@ def run_governance_checks(sales, customers):
     logger.info("Running PII scan on customer data...")
     pii_report = scan_pii(customers, warn=False)
     if not pii_report.empty:
-        print("\nðŸ“‹ PII Scan Report (Customer Data):")
+        print("\n📋 PII Scan Report (Customer Data):")
         print(pii_report[["Column", "PII_Type", "Confidence", "Description"]].to_string(index=False))
         print()
     else:
-        print("âœ… No PII detected.\n")
+        print("✅ No PII detected.\n")
 
     # --- Data Contracts ---
     logger.info("Validating sales data contract...")
@@ -141,13 +141,13 @@ def run_governance_checks(sales, customers):
         }
     }
     expect_schema(sales, sales_schema)
-    logger.info("âœ… Sales data contract validated successfully")
+    logger.info("✅ Sales data contract validated successfully")
 
     # --- Infer & Display Customer Schema ---
     customer_schema = infer_schema(customers)
-    print("ðŸ“„ Inferred Customer Schema:")
+    print("📄 Inferred Customer Schema:")
     for col, spec in customer_schema["columns"].items():
-        print(f"   {col:15s} â†’ dtype={spec['dtype']:10s} nullable={spec['nullable']}")
+        print(f"   {col:15s} → dtype={spec['dtype']:10s} nullable={spec['nullable']}")
     print()
 
 
@@ -166,7 +166,7 @@ def run_pipeline_python_api(backend_name: str):
     sales = InOut.input_data(str(SCRIPT_DIR / "demo_sales.csv"))
     customers = InOut.input_data(str(SCRIPT_DIR / "demo_customers.csv"))
 
-    # 2. Cleanse â€” normalize whitespace, case in SalesRep
+    # 2. Cleanse — normalize whitespace, case in SalesRep
     sales_clean = Preparation.data_cleansing(
         sales,
         columns=["SalesRep"],
@@ -174,22 +174,22 @@ def run_pipeline_python_api(backend_name: str):
         modify_case="title",
     )
 
-    # 3. Filter â€” remove negative/zero amounts (returns & errors)
+    # 3. Filter — remove negative/zero amounts (returns & errors)
     valid_sales, rejected = Preparation.filter(sales_clean, "Amount > 0")
     logger.info("Filter: %s valid, %s rejected",
                 len(valid_sales) if backend_name == "pandas" else "N/A",
                 len(rejected) if backend_name == "pandas" else "N/A")
 
-    # 4. Formula â€” calculate profit margin and tax
+    # 4. Formula — calculate profit margin and tax
     with_profit = Preparation.formula(valid_sales, "Profit", "Amount * 0.25")
     with_tax = Preparation.formula(with_profit, "Tax", "Amount * 0.18")
     with_net = Preparation.formula(with_tax, "NetRevenue", "Amount - Tax")
 
-    # 5. Join â€” enrich with customer master data
+    # 5. Join — enrich with customer master data
     left_only, enriched, right_only = Join.join(with_net, customers, on="CustomerID")
     logger.info("Join: enriched sales with customer regions and tiers")
 
-    # 6. Summarize â€” aggregate by Region and Tier
+    # 6. Summarize — aggregate by Region and Tier
     region_summary = Transform.summarize(
         enriched,
         group_by=["Region", "Tier"],
@@ -200,7 +200,7 @@ def run_pipeline_python_api(backend_name: str):
         }
     )
 
-    # 7. Sort â€” by total profit descending
+    # 7. Sort — by total profit descending
     sorted_summary = Preparation.sort(region_summary, ["Sum_Profit"], ascending=False)
 
     # 8. Running total
@@ -218,10 +218,10 @@ def run_pipeline_python_api(backend_name: str):
             lambda df: df["Sum_Profit"].sum() > 0,
             "Total profit must be positive!"
         )
-        logger.info("âœ… Output validation passed")
+        logger.info("✅ Output validation passed")
 
-    # 11. Browse â€” display final result
-    print(f"\nðŸ“Š Pipeline Results ({backend_name.upper()} backend):")
+    # 11. Browse — display final result
+    print(f"\n📊 Pipeline Results ({backend_name.upper()} backend):")
     InOut.browse(with_running, n=10)
 
     # Reset backend
@@ -291,18 +291,18 @@ def run_pipeline_yaml():
     step_log = []
 
     def on_start(step_id, tool_name):
-        step_log.append(f"â–¶ {step_id}")
+        step_log.append(f"▶ {step_id}")
 
     def on_complete(step_id, tool_name, metrics):
-        rows = metrics.get("output_rows", metrics.get("output_0_rows", "â€”"))
-        step_log.append(f"  âœ… {step_id}: {metrics['duration_s']}s, {rows} rows")
+        rows = metrics.get("output_rows", metrics.get("output_0_rows", "—"))
+        step_log.append(f"  ✅ {step_id}: {metrics['duration_s']}s, {rows} rows")
 
     def on_error(step_id, tool_name, error):
-        step_log.append(f"  âŒ {step_id}: FAILED â€” {error}")
+        step_log.append(f"  ❌ {step_id}: FAILED — {error}")
 
     def on_pipeline_done(name, all_metrics):
         total = sum(m["duration_s"] for m in all_metrics)
-        step_log.append(f"\nðŸ Pipeline '{name}' completed: {len(all_metrics)} steps in {total:.3f}s")
+        step_log.append(f"\n🏁 Pipeline '{name}' completed: {len(all_metrics)} steps in {total:.3f}s")
 
     # Execute with hooks
     pipeline = Pipeline.run(
@@ -314,16 +314,16 @@ def run_pipeline_yaml():
     )
 
     # Display execution trace
-    print("\nðŸ“‹ Pipeline Execution Trace:")
+    print("\n📋 Pipeline Execution Trace:")
     for line in step_log:
         print(f"   {line}")
 
     # Display metrics summary
-    print("\nðŸ“Š Pipeline Metrics:")
+    print("\n📊 Pipeline Metrics:")
     print(f"   {'Step':<20s} {'Tool':<30s} {'Duration':>10s} {'Rows':>8s} {'Status':>8s}")
-    print(f"   {'â”€'*20} {'â”€'*30} {'â”€'*10} {'â”€'*8} {'â”€'*8}")
+    print(f"   {'─'*20} {'─'*30} {'─'*10} {'─'*8} {'─'*8}")
     for m in pipeline.metrics:
-        rows = str(m.get("output_rows", m.get("output_0_rows", "â€”")))
+        rows = str(m.get("output_rows", m.get("output_0_rows", "—")))
         print(f"   {m['step_id']:<20s} {m['tool']:<30s} {m['duration_s']:>9.4f}s {rows:>8s} {m['status']:>8s}")
 
     total_time = sum(m["duration_s"] for m in pipeline.metrics)
@@ -337,7 +337,7 @@ def run_pipeline_yaml():
 # ================================================================== #
 def main():
     print("=" * 60)
-    print("  ðŸ¦ etlpipe Enterprise Pipeline Demo")
+    print("  🐦 Etlpipe Enterprise Pipeline Demo")
     print(f"  Version: {etlpipe.__version__}")
     print("=" * 60)
     print()
@@ -354,9 +354,9 @@ def main():
     # 4. Run on PySpark backend
     try:
         spark_result = run_pipeline_python_api("spark")
-        print("\nâœ… Both backends produced results successfully!")
+        print("\n✅ Both backends produced results successfully!")
     except ImportError:
-        logger.warning("PySpark not installed â€” skipping Spark backend. Install with: pip install etlpipe[spark]")
+        logger.warning("PySpark not installed — skipping Spark backend. Install with: pip install etlpipe[spark]")
         spark_result = None
 
     # 5. Run YAML pipeline with hooks
@@ -364,15 +364,15 @@ def main():
 
     # 6. Final summary
     print("\n" + "=" * 60)
-    print("  ðŸ“ Output Files Generated:")
-    print("  â”€" * 30)
-    print("  â€¢ demo_sales.csv           (sample sales data)")
-    print("  â€¢ demo_customers.csv       (sample customer data)")
-    print("  â€¢ pipeline_output_pandas.csv (Python API â€” Pandas)")
+    print("  📁 Output Files Generated:")
+    print("  ─" * 30)
+    print("  • demo_sales.csv           (sample sales data)")
+    print("  • demo_customers.csv       (sample customer data)")
+    print("  • pipeline_output_pandas.csv (Python API — Pandas)")
     if spark_result is not None:
-        print("  â€¢ pipeline_output_spark.csv  (Python API â€” Spark)")
-    print("  â€¢ demo_yaml_output.csv     (YAML pipeline)")
-    print("  â€¢ demo_pipeline.yaml       (generated YAML config)")
+        print("  • pipeline_output_spark.csv  (Python API — Spark)")
+    print("  • demo_yaml_output.csv     (YAML pipeline)")
+    print("  • demo_pipeline.yaml       (generated YAML config)")
     print("=" * 60)
 
 

@@ -1,7 +1,7 @@
-﻿# etlpipe â€” Comprehensive User Guide
+# Etlpipe — Comprehensive User Guide
 
-> **etlpipe** is the fastest path from proprietary visual ETL to open-source Python.
-> It provides a 1:1 API mapping of visual ETL tool palettes to standard Python functions and declarative YAML pipelines â€” running on **Pandas** locally or **PySpark** at billion-record scale with a single config change.
+> **Etlpipe** is the fastest path from proprietary visual ETL to open-source Python.
+> It provides a 1:1 API mapping of visual ETL tool palettes to standard Python functions and declarative YAML pipelines — running on **Pandas** locally or **PySpark** at billion-record scale with a single config change.
 
 ---
 
@@ -11,13 +11,13 @@
 2. [Installation & Setup](#2-installation--setup)
 3. [Core Concepts](#3-core-concepts)
 4. [Engine Configuration](#4-engine-configuration)
-5. [InOut Palette â€” Reading & Writing Data](#5-inout-palette--reading--writing-data)
-6. [Preparation Palette â€” Cleaning & Transforming Rows](#6-preparation-palette--cleaning--transforming-rows)
-7. [Join Palette â€” Blending DataFrames](#7-join-palette--blending-dataframes)
-8. [Transform Palette â€” Aggregating & Reshaping](#8-transform-palette--aggregating--reshaping)
-9. [Parse Palette â€” Text, Dates & Regex](#9-parse-palette--text-dates--regex)
-10. [Developer Palette â€” Utilities & Quality Checks](#10-developer-palette--utilities--quality-checks)
-11. [Pipeline â€” Declarative YAML Execution](#11-pipeline--declarative-yaml-execution)
+5. [InOut Palette — Reading & Writing Data](#5-inout-palette--reading--writing-data)
+6. [Preparation Palette — Cleaning & Transforming Rows](#6-preparation-palette--cleaning--transforming-rows)
+7. [Join Palette — Blending DataFrames](#7-join-palette--blending-dataframes)
+8. [Transform Palette — Aggregating & Reshaping](#8-transform-palette--aggregating--reshaping)
+9. [Parse Palette — Text, Dates & Regex](#9-parse-palette--text-dates--regex)
+10. [Developer Palette — Utilities & Quality Checks](#10-developer-palette--utilities--quality-checks)
+11. [Pipeline — Declarative YAML Execution](#11-pipeline--declarative-yaml-execution)
 12. [Enterprise Governance](#12-enterprise-governance)
 13. [Scale & Performance Guide](#13-scale--performance-guide)
 14. [End-to-End Examples](#14-end-to-end-examples)
@@ -28,9 +28,9 @@
 
 ## 1. Overview & Purpose
 
-### What is etlpipe?
+### What is Etlpipe?
 
-etlpipe is a Python library that replicates every major **visual ETL tool palette** as clean, testable Python functions. Teams migrating from proprietary GUI ETL software (Alteryx, Dataiku, Informatica, SSIS) can adopt etlpipe's familiar vocabulary â€” `Preparation.filter()`, `Join.join()`, `Transform.summarize()` â€” and immediately produce correct, production-grade pipelines without deep Pandas expertise.
+Etlpipe is a Python library that replicates every major **visual ETL tool palette** as clean, testable Python functions. Teams migrating from proprietary GUI ETL software (Alteryx, Dataiku, Informatica, SSIS) can adopt Etlpipe's familiar vocabulary — `Preparation.filter()`, `Join.join()`, `Transform.summarize()` — and immediately produce correct, production-grade pipelines without deep Pandas expertise.
 
 ### Key Design Principles
 
@@ -39,13 +39,13 @@ etlpipe is a Python library that replicates every major **visual ETL tool palett
 | **Immutability** | Every function returns a **new** DataFrame. Originals are never mutated. |
 | **Output Anchors** | Multi-output tools return tuples mirroring visual T/F, L/J/R anchors. |
 | **Dual-Engine** | Same code runs on **Pandas** (local) or **PySpark** (distributed cluster). |
-| **Security-first** | Formula evaluation uses `df.eval()` only â€” no `eval()`/`exec()`. XML uses `defusedxml`. |
-| **Static API** | All palette methods are `@staticmethod` â€” no instance state, fully thread-safe. |
+| **Security-first** | Formula evaluation uses `df.eval()` only — no `eval()`/`exec()`. XML uses `defusedxml`. |
+| **Static API** | All palette methods are `@staticmethod` — no instance state, fully thread-safe. |
 
 ### Value Proposition
 
-- **Automated Workflow Conversion**: `etlpipe-convert` translates `.yxmd` files automatically into etlpipe YAML.
-- **Escape Vendor Lock-In**: Run pipelines anywhere Python runs â€” locally, Airflow, AWS Lambda, Databricks, Kubernetes.
+- **Automated Workflow Conversion**: `etlpipe-convert` translates `.yxmd` files automatically into Etlpipe YAML.
+- **Escape Vendor Lock-In**: Run pipelines anywhere Python runs — locally, Airflow, AWS Lambda, Databricks, Kubernetes.
 - **Enterprise Governance Built-in**: PII scanning, schema contracts, and pipeline event hooks ship out of the box.
 
 ---
@@ -95,7 +95,7 @@ CMD ["python", "pipeline.py"]
 
 ### Databricks / Cloud Spark
 
-Install `etlpipe[spark]` as a cluster library. etlpipe automatically detects the active `SparkSession` via `SparkSession.builder.getOrCreate()` â€” no additional configuration needed.
+Install `etlpipe[spark]` as a cluster library. Etlpipe automatically detects the active `SparkSession` via `SparkSession.builder.getOrCreate()` — no additional configuration needed.
 
 ---
 
@@ -114,7 +114,7 @@ Install `etlpipe[spark]` as a cluster library. etlpipe automatically detects the
 
 ### Immutability
 
-Every etlpipe function returns a **new** DataFrame. The original is never modified:
+Every Etlpipe function returns a **new** DataFrame. The original is never modified:
 
 ```python
 clean = Preparation.data_cleansing(raw_df, strip_whitespace=True)
@@ -124,7 +124,7 @@ assert "Name" in raw_df.columns  # True
 
 ### Output Anchors (Tuples)
 
-Visual ETL tools have named output anchors. etlpipe mirrors this with tuples:
+Visual ETL tools have named output anchors. Etlpipe mirrors this with tuples:
 
 ```python
 # Filter -> T (True) and F (False) anchors
@@ -149,10 +149,10 @@ train, val, test = Preparation.create_samples(df, 0.7, 0.2, 0.1)
 ```python
 import etlpipe
 
-# Default â€” Pandas (single machine)
+# Default — Pandas (single machine)
 etlpipe.set_backend("pandas")
 
-# Distributed â€” PySpark
+# Distributed — PySpark
 etlpipe.set_backend("spark")
 
 # Check current backend
@@ -169,15 +169,15 @@ from etlpipe import set_engine
 from etlpipe.engines.spark_engine import SparkEngine
 
 spark = SparkSession.builder \
-    .appName("etlpipeProd") \
+    .appName("EtlpipeProd") \
     .config("spark.sql.shuffle.partitions", "2000") \
     .config("spark.checkpoint.dir", "s3://your-bucket/checkpoints") \
     .getOrCreate()
 
 set_engine(SparkEngine(
     spark=spark,
-    broadcast_threshold=50 * 1024 * 1024,   # 50 MB â€” auto-broadcast small tables
-    max_collect_bytes=500 * 1024 * 1024,     # 500 MB â€” driver collect safety limit
+    broadcast_threshold=50 * 1024 * 1024,   # 50 MB — auto-broadcast small tables
+    max_collect_bytes=500 * 1024 * 1024,     # 500 MB — driver collect safety limit
     checkpoint_interval=5,                    # Auto-checkpoint every 5 pipeline steps
 ))
 ```
@@ -187,13 +187,13 @@ set_engine(SparkEngine(
 | Data Size | Recommended Engine | Notes |
 |---|---|---|
 | < 10M rows | **Pandas** | Fast, no JVM overhead |
-| 10M â€“ 100M rows | **Pandas + pyarrow** | `pip install pyarrow` for Arrow-accelerated CSV reads |
-| 100M â€“ 1B rows | **Spark** | Requires PySpark cluster |
+| 10M – 100M rows | **Pandas + pyarrow** | `pip install pyarrow` for Arrow-accelerated CSV reads |
+| 100M – 1B rows | **Spark** | Requires PySpark cluster |
 | 1B+ rows | **Spark** | Use parquet format; enable checkpointing |
 
 ---
 
-## 5. InOut Palette â€” Reading & Writing Data
+## 5. InOut Palette — Reading & Writing Data
 
 ### `InOut.input_data(path, **kwargs)`
 
@@ -213,14 +213,14 @@ Read data from a file into a DataFrame. Format is auto-detected from the file ex
 | `.sas7bdat`, `.xpt` | SAS | |
 | `.dta` | Stata | |
 | `.sav` | SPSS | |
-| `.pkl`, `.pickle` | Pickle | Deprecated â€” security risk (CWE-502) |
+| `.pkl`, `.pickle` | Pickle | Deprecated — security risk (CWE-502) |
 
 **Cloud paths** (`s3://`, `gs://`, `abfs://`) require `pip install "etlpipe[cloud]"`.
 
 ```python
 from etlpipe import InOut
 
-# Local file â€” format auto-detected
+# Local file — format auto-detected
 df = InOut.input_data("sales.csv")
 
 # Excel with specific sheet
@@ -247,7 +247,7 @@ Write a DataFrame to a file. Format auto-detected from extension. Parent directo
 # CSV (index excluded by default)
 InOut.output_data(df, "output.csv")
 
-# Parquet â€” best for large data
+# Parquet — best for large data
 InOut.output_data(df, "output.parquet")
 
 # Excel with no index
@@ -270,7 +270,7 @@ df = InOut.text_input({"Name": ["Alice", "Bob"], "Age": [30, 25]})
 # List of row dicts (records format)
 df = InOut.text_input([{"id": 1, "val": "A"}, {"id": 2, "val": "B"}])
 
-# List of lists â€” requires columns parameter
+# List of lists — requires columns parameter
 df = InOut.text_input([[1, "Alice"], [2, "Bob"]], columns=["ID", "Name"])
 ```
 
@@ -307,20 +307,20 @@ Return the current timestamp as a single-row DataFrame with column `DateTime`.
 now_df = InOut.date_time_now()
 ```
 
-> **Spark engine:** Uses `F.current_timestamp()` â€” cluster-synchronized across all executors, not driver-only `datetime.now()`.
+> **Spark engine:** Uses `F.current_timestamp()` — cluster-synchronized across all executors, not driver-only `datetime.now()`.
 
 ---
 
-## 6. Preparation Palette â€” Cleaning & Transforming Rows
+## 6. Preparation Palette — Cleaning & Transforming Rows
 
 ### `Preparation.filter(df, condition=None, *, column=None, operator=None, value=None)`
 
 Split a DataFrame into rows that match and rows that do not. Returns `(true_df, false_df)`.
 
-**Mode 1 â€” Custom Filter** (string expression or callable):
+**Mode 1 — Custom Filter** (string expression or callable):
 
 ```python
-# String expression â€” uses df.eval(), safe (no arbitrary code execution)
+# String expression — uses df.eval(), safe (no arbitrary code execution)
 high, low = Preparation.filter(df, "Revenue > 1000")
 
 # Multi-condition
@@ -330,7 +330,7 @@ valid, invalid = Preparation.filter(df, "Age >= 18 and Status == 'Active'")
 boston, other = Preparation.filter(df, lambda d: d["City"] == "Boston")
 ```
 
-**Mode 2 â€” Basic Filter** (column + operator + value):
+**Mode 2 — Basic Filter** (column + operator + value):
 
 All supported operators:
 
@@ -364,7 +364,7 @@ empty, non_empty = Preparation.filter(df, column="Name", operator="is empty")
 # Substring
 has_li, no_li = Preparation.filter(df, column="Name", operator="contains", value="li")
 
-# Boolean columns â€” ALWAYS use operator mode for bool, never string eval
+# Boolean columns — ALWAYS use operator mode for bool, never string eval
 flagged, _ = Preparation.filter(df, column="IsActive", operator="is true")
 ```
 
@@ -375,13 +375,13 @@ flagged, _ = Preparation.filter(df, column="IsActive", operator="is true")
 Create or update a column using a string expression or callable.
 
 ```python
-# String expression â€” uses df.eval() (safe, no arbitrary execution)
+# String expression — uses df.eval() (safe, no arbitrary execution)
 df = Preparation.formula(df, "Profit", "Revenue - Cost")
 
 # Column names with spaces are auto-backticked
 df = Preparation.formula(df, "IsAlice", "Customer Name == 'Alice'")
 
-# Callable lambda â€” for complex Python logic not expressible in df.eval()
+# Callable lambda — for complex Python logic not expressible in df.eval()
 df = Preparation.formula(df, "UpperName", lambda d: d["Name"].str.upper())
 
 # Complex conditional logic
@@ -454,7 +454,7 @@ df = Preparation.data_cleansing(df, columns=["Notes"], remove_punctuation=True)
 df = Preparation.data_cleansing(df, columns=["Name", "Email"], remove_null_rows=True)
 ```
 
-> **NaN-safety:** Original null values are preserved after string operations. etlpipe explicitly prevents `.astype(str)` from converting NaN to the string `"nan"`.
+> **NaN-safety:** Original null values are preserved after string operations. Etlpipe explicitly prevents `.astype(str)` from converting NaN to the string `"nan"`.
 
 ---
 
@@ -529,7 +529,7 @@ df = Preparation.record_id(df)                         # Adds "RecordID" startin
 df = Preparation.record_id(df, "RowNum", start=1000)   # Custom name and start value
 ```
 
-> **Spark engine:** IDs are unique and monotonically increasing but not strictly sequential â€” avoids a catastrophic full cluster sort. If you need `1, 2, 3, ...` globally, use the Pandas engine.
+> **Spark engine:** IDs are unique and monotonically increasing but not strictly sequential — avoids a catastrophic full cluster sort. If you need `1, 2, 3, ...` globally, use the Pandas engine.
 
 ---
 
@@ -560,10 +560,10 @@ Automatically optimize column data types to reduce memory footprint:
 
 ```python
 df = Preparation.auto_field(df)
-# Can reduce memory footprint by 50â€“80% on typical datasets
+# Can reduce memory footprint by 50–80% on typical datasets
 ```
 
-> **Spark engine:** Collects all LongType column min/max stats in **one Spark job** (not one job per column) â€” safe to call on wide DataFrames with many integer columns.
+> **Spark engine:** Collects all LongType column min/max stats in **one Spark job** (not one job per column) — safe to call on wide DataFrames with many integer columns.
 
 ---
 
@@ -593,7 +593,7 @@ Apply a formula that references values from previous or future rows.
 | `group_by` | Column(s) to partition the shift (resets at each group boundary). |
 
 ```python
-# Row-over-row delta (first row = NaN â€” no previous value)
+# Row-over-row delta (first row = NaN — no previous value)
 df = Preparation.multi_row_formula(df, "Delta",
     lambda cur, prev: cur - prev, rows_back=1)
 
@@ -637,7 +637,7 @@ Fill missing values with computed or fixed replacements. When `add_indicator=Tru
 | `"mean"` | Column mean (numeric only) |
 | `"median"` | Column median |
 | `"mode"` | Most frequent value |
-| `"value"` | Fixed value â€” requires `replacement_value` parameter |
+| `"value"` | Fixed value — requires `replacement_value` parameter |
 
 ```python
 # Mean imputation with indicator flag
@@ -736,11 +736,11 @@ df = Preparation.rank(df, "Sales", group_by=["Region", "Year"])
 
 ---
 
-## 7. Join Palette â€” Blending DataFrames
+## 7. Join Palette — Blending DataFrames
 
 ### `Join.join(left, right, on=None, left_on=None, right_on=None, suffixes=("_left", "_right"))`
 
-Merge two DataFrames. Returns `(left_unjoined, joined, right_unjoined)` â€” equivalent to **L**, **J**, **R** visual output anchors.
+Merge two DataFrames. Returns `(left_unjoined, joined, right_unjoined)` — equivalent to **L**, **J**, **R** visual output anchors.
 
 The implementation performs an outer merge with an indicator, then slices the three result sets. The Spark engine persists both inputs and auto-broadcasts small tables.
 
@@ -758,7 +758,7 @@ L, J, R = Join.join(sales, targets, on=["Region", "Year"])
 # Custom suffixes for overlapping non-key columns
 L, J, R = Join.join(df1, df2, on="ID", suffixes=("_actual", "_forecast"))
 
-# Most common usage â€” just the matched result
+# Most common usage — just the matched result
 _, enriched, _ = Join.join(transactions, product_lookup, on="ProductCode")
 ```
 
@@ -828,16 +828,16 @@ df = Join.find_replace(df, replacements, "Find", "Replace",
                         target_col="CompanyName", mode="partial")
 ```
 
-> **Spark engine:** `mode="entire"` uses a native broadcast join. `mode="partial"` or `append=True` falls back to `_safe_collect()` â€” protected by the driver memory guard.
+> **Spark engine:** `mode="entire"` uses a native broadcast join. `mode="partial"` or `append=True` falls back to `_safe_collect()` — protected by the driver memory guard.
 
 ---
 
 ### `Join.append_fields(left, right)`
 
-Cartesian (cross) join â€” every row in `left` combined with every row in `right`.
+Cartesian (cross) join — every row in `left` combined with every row in `right`.
 
 ```python
-# 3 sizes Ã— 4 colors = 12 product variants
+# 3 sizes × 4 colors = 12 product variants
 product_variants = Join.append_fields(sizes_df, colors_df)
 ```
 
@@ -852,14 +852,14 @@ Approximate string matching using `difflib.SequenceMatcher` ratio scoring. Retur
 ```python
 # Match company names (70% similarity minimum)
 matches = Join.fuzzy_match(df1, df2, "CompanyName", "Name", threshold=0.7)
-# Output includes all left and right columns plus "MatchScore" (float 0.0â€“1.0)
+# Output includes all left and right columns plus "MatchScore" (float 0.0–1.0)
 
 # Stricter matching for person names
 name_matches = Join.fuzzy_match(df1, df2, "CustomerName", "FullName",
                                  threshold=0.85, score_column="Similarity")
 ```
 
-> **Scale note:** O(NÃ—M) comparison â€” avoid on tables > 100K rows without pre-filtering. Spark engine vectorizes per pair via `@pandas_udf`.
+> **Scale note:** O(N×M) comparison — avoid on tables > 100K rows without pre-filtering. Spark engine vectorizes per pair via `@pandas_udf`.
 
 ---
 
@@ -885,7 +885,7 @@ groups = Join.make_group(pairs, "PersonA", "PersonB")
 
 ---
 
-## 8. Transform Palette â€” Aggregating & Reshaping
+## 8. Transform Palette — Aggregating & Reshaping
 
 ### `Transform.summarize(df, group_by=None, aggregations=None)`
 
@@ -1056,7 +1056,7 @@ wa = Transform.weighted_average(df, "Discount", "Revenue",
 
 ---
 
-## 9. Parse Palette â€” Text, Dates & Regex
+## 9. Parse Palette — Text, Dates & Regex
 
 ### `Parse.date_time(df, column, input_fmt=None, output_fmt=None)`
 
@@ -1073,7 +1073,7 @@ df = Parse.date_time(df, "DateStr", input_fmt="%m/%d/%Y")
 df = Parse.date_time(df, "Date", input_fmt="%Y-%m-%d", output_fmt="%d/%m/%Y")
 ```
 
-> **Spark engine:** Format codes are automatically transpiled from Python `strftime` (e.g., `%Y-%m-%d`) to Java `SimpleDateFormat` (e.g., `yyyy-MM-dd`). Use the same format strings on both engines â€” etlpipe handles the conversion.
+> **Spark engine:** Format codes are automatically transpiled from Python `strftime` (e.g., `%Y-%m-%d`) to Java `SimpleDateFormat` (e.g., `yyyy-MM-dd`). Use the same format strings on both engines — Etlpipe handles the conversion.
 
 ---
 
@@ -1082,7 +1082,7 @@ df = Parse.date_time(df, "Date", input_fmt="%Y-%m-%d", output_fmt="%d/%m/%Y")
 Add a boolean column indicating whether each row matches a regex pattern.
 
 ```python
-# Email validation â€” adds boolean column "Match"
+# Email validation — adds boolean column "Match"
 df = Parse.regex_match(df, "Email", r"^[\w.]+@[\w.]+\.\w+$")
 
 # Custom output column name
@@ -1099,7 +1099,7 @@ df = Parse.regex_match(df, "Address", r"\b\d{5}\b", output_column="HasZipCode")
 Extract regex capture groups into new columns. The number of output columns must match the number of capturing groups.
 
 ```python
-# Two groups â€” auto-named Group_1, Group_2
+# Two groups — auto-named Group_1, Group_2
 df = Parse.regex_parse(df, "FullName", r"(\w+)\s+(\w+)")
 
 # Named output columns
@@ -1174,7 +1174,7 @@ df = Parse.text_to_columns(df, "TabField", "\t", split_to="columns")
 
 ### `Parse.xml_parse(df, column, xpath, output_column="ParsedXML", return_child_values=False, return_outer_xml=False)`
 
-Extract data from XML string columns using XPath expressions. Uses `defusedxml` â€” protected against XXE injection attacks (CVE category).
+Extract data from XML string columns using XPath expressions. Uses `defusedxml` — protected against XXE injection attacks (CVE category).
 
 | Parameter | Description |
 |---|---|
@@ -1199,7 +1199,7 @@ df = Parse.xml_parse(df, "XML", ".//Item",
 
 ---
 
-## 10. Developer Palette â€” Utilities & Quality Checks
+## 10. Developer Palette — Utilities & Quality Checks
 
 ### `Developer.test(df, condition_func, error_msg="Test condition failed")`
 
@@ -1285,7 +1285,7 @@ Rename columns dynamically using a lookup DataFrame rather than hardcoded string
 
 | `mode` | Description |
 |---|---|
-| `"mapping"` | Renames using the `key_col` â†’ `new_name_col` lookup. |
+| `"mapping"` | Renames using the `key_col` → `new_name_col` lookup. |
 | `"prefix"` | Prepends a prefix to all columns (from a single-value `rename_df`). |
 | `"suffix"` | Appends a suffix to all columns. |
 
@@ -1312,7 +1312,7 @@ df = Developer.dynamic_rename(df, suffix_df, mode="suffix")
 Expand a JSON string column into separate columns. The original JSON column is preserved.
 
 ```python
-# Parse JSON payload â€” prefix defaults to column name
+# Parse JSON payload — prefix defaults to column name
 df = Developer.json_parse(df, "EventPayload")
 # If EventPayload = '{"city": "NY", "score": 9}'
 # Adds: EventPayload_city, EventPayload_score
@@ -1352,11 +1352,11 @@ Fetch data from a URL with automatic retry and exponential backoff. Attempts JSO
 
 | Parameter | Default | Description |
 |---|---|---|
-| `url` | â€” | The URL to fetch. |
+| `url` | — | The URL to fetch. |
 | `params` | `None` | Optional `dict` of query parameters. |
 | `output_column` | `"DownloadData"` | Column name for raw text fallback. |
 | `max_retries` | `3` | Maximum retry attempts for transient failures. |
-| `retry_delay` | `1.0` | Base delay in seconds (exponential: delay Ã— 2^attempt). |
+| `retry_delay` | `1.0` | Base delay in seconds (exponential: delay × 2^attempt). |
 
 ```python
 # Simple GET
@@ -1371,11 +1371,11 @@ df = Developer.download("https://api.example.com/data",
                          max_retries=5, retry_delay=2.0)
 ```
 
-> Uses `urllib` from the Python standard library â€” no `requests` dependency required.
+> Uses `urllib` from the Python standard library — no `requests` dependency required.
 
 ---
 
-## 11. Pipeline â€” Declarative YAML Execution
+## 11. Pipeline — Declarative YAML Execution
 
 ### YAML Structure Reference
 
@@ -1402,7 +1402,7 @@ df: "filter_step.1"    # False anchor (non-matching rows)
 
 # Join returns (left_unjoined, joined, right_unjoined):
 df: "join_step.0"      # Left unjoined (L anchor)
-df: "join_step.1"      # Joined result (J anchor) â€” most common
+df: "join_step.1"      # Joined result (J anchor) — most common
 df: "join_step.2"      # Right unjoined (R anchor)
 
 # Unique returns (unique_df, duplicate_df):
@@ -1631,8 +1631,8 @@ Pipeline("pipeline.yaml", on_step_complete=emit_lineage).execute()
 | Data Size | Engine | Notes |
 |---|---|---|
 | < 10M rows | **Pandas** | Fast, no JVM overhead |
-| 10M â€“ 100M rows | **Pandas + PyArrow** | `pip install pyarrow` for Arrow-accelerated CSV reads |
-| 100M â€“ 1B rows | **Spark** | Parquet input; tune `spark.sql.shuffle.partitions` |
+| 10M – 100M rows | **Pandas + PyArrow** | `pip install pyarrow` for Arrow-accelerated CSV reads |
+| 100M – 1B rows | **Spark** | Parquet input; tune `spark.sql.shuffle.partitions` |
 | 1B+ rows | **Spark** | Enable checkpointing; tune `broadcast_threshold` |
 
 ### Best Practices
@@ -1640,7 +1640,7 @@ Pipeline("pipeline.yaml", on_step_complete=emit_lineage).execute()
 **Filter and select columns early:**
 
 ```python
-# Filter before joins â€” reduces data flowing into merge
+# Filter before joins — reduces data flowing into merge
 active, _ = Preparation.filter(df, "Status == 'Active'")
 df = Preparation.select(active, columns=["ID", "Revenue", "Region"])
 _, joined, _ = Join.join(df, lookup, on="ID")
@@ -1656,13 +1656,13 @@ InOut.output_data(df, "output.parquet")  # Columnar, compressed, 3-5x smaller an
 
 ```python
 df = InOut.input_data("data.parquet")
-df = Preparation.auto_field(df)  # Can reduce memory by 50â€“80%
+df = Preparation.auto_field(df)  # Can reduce memory by 50–80%
 ```
 
 **Spark shuffle partition tuning:**
 
 ```python
-# Default is 200 â€” too low for large joins, too high for small data
+# Default is 200 — too low for large joins, too high for small data
 spark.conf.set("spark.sql.shuffle.partitions", "2000")  # ~200MB per partition target
 ```
 
@@ -1777,11 +1777,11 @@ products     = InOut.input_data("s3://datalake/dim_products.parquet")
 transactions = Parse.date_time(transactions, "TxDate", input_fmt="%Y-%m-%d")
 transactions = Developer.json_parse(transactions, "Metadata", prefix="meta")
 
-# Filter â€” reduce data before expensive joins
+# Filter — reduce data before expensive joins
 valid_tx, invalid_tx = Preparation.filter(transactions,
     column="Amount", operator=">", value=0)
 
-# Join dimensions (stores/products are small â€” auto-broadcast)
+# Join dimensions (stores/products are small — auto-broadcast)
 _, tx_with_stores, _ = Join.join(valid_tx, stores, on="StoreID")
 _, enriched, _       = Join.join(tx_with_stores, products, on="ProductID")
 
@@ -1844,7 +1844,7 @@ InOut.output_data(df, "contacts_clean.parquet")
 
 **Q: MemoryError when processing a large file.**
 
-Install PyArrow (`pip install pyarrow`) â€” etlpipe uses it automatically for CSV reads, significantly reducing memory. If data still exceeds available RAM, switch to the Spark engine on a cluster.
+Install PyArrow (`pip install pyarrow`) — Etlpipe uses it automatically for CSV reads, significantly reducing memory. If data still exceeds available RAM, switch to the Spark engine on a cluster.
 
 ---
 
@@ -1852,7 +1852,7 @@ Install PyArrow (`pip install pyarrow`) â€” etlpipe uses it automatically f
 
 The three outputs mirror visual ETL output anchors:
 - `left_unjoined` (L): rows in the left DataFrame with **no match** in right
-- `joined` (J): rows that matched in **both** DataFrames â€” this is usually what you want
+- `joined` (J): rows that matched in **both** DataFrames — this is usually what you want
 - `right_unjoined` (R): rows in the right DataFrame with **no match** in left
 
 ```python
@@ -1866,10 +1866,10 @@ _, joined, _ = Join.join(orders, customers, on="CustomerID")
 String expressions use `df.eval()` which only supports column references and math/comparison operators. Use a lambda callable for any Python function calls:
 
 ```python
-# Fails â€” .upper() is not supported in df.eval()
+# Fails — .upper() is not supported in df.eval()
 df = Preparation.formula(df, "Upper", "Name.upper()")
 
-# Works â€” lambda executes full Python
+# Works — lambda executes full Python
 df = Preparation.formula(df, "Upper", lambda d: d["Name"].str.upper())
 ```
 
@@ -1880,27 +1880,27 @@ df = Preparation.formula(df, "Upper", lambda d: d["Name"].str.upper())
 Always use the operator-based Basic Filter mode for boolean columns. Never use string expressions like `"IsActive == True"`:
 
 ```python
-# Correct â€” vectorized, NaN-safe
+# Correct — vectorized, NaN-safe
 active, inactive = Preparation.filter(df, column="IsActive", operator="is true")
 ```
 
 ---
 
-**Q: How do I use etlpipe on Databricks?**
+**Q: How do I use Etlpipe on Databricks?**
 
-Install `etlpipe[spark]` as a cluster library via the Databricks UI or init script. Databricks has an active `SparkSession` â€” etlpipe finds it automatically when you call `set_backend("spark")`.
+Install `etlpipe[spark]` as a cluster library via the Databricks UI or init script. Databricks has an active `SparkSession` — Etlpipe finds it automatically when you call `set_backend("spark")`.
 
 ---
 
 **Q: Spark `record_id` does not produce sequential integers (1, 2, 3, ...).**
 
-This is intentional. `monotonically_increasing_id()` avoids a full global sort which would require funneling all partitions through a single node â€” catastrophic at scale. IDs are guaranteed unique and monotonically increasing within each partition. If you need strict global sequences, use the Pandas engine or apply native Spark `zipWithIndex`.
+This is intentional. `monotonically_increasing_id()` avoids a full global sort which would require funneling all partitions through a single node — catastrophic at scale. IDs are guaranteed unique and monotonically increasing within each partition. If you need strict global sequences, use the Pandas engine or apply native Spark `zipWithIndex`.
 
 ---
 
 **Q: How do I debug a failing YAML pipeline step?**
 
-Insert a `browse` step between suspect steps â€” it prints a full data profile without stopping execution:
+Insert a `browse` step between suspect steps — it prints a full data profile without stopping execution:
 
 ```yaml
 - id: "debug_inspect"
@@ -1913,9 +1913,9 @@ Insert a `browse` step between suspect steps â€” it prints a full data prof
 
 ---
 
-**Q: Does etlpipe support incremental/streaming data?**
+**Q: Does Etlpipe support incremental/streaming data?**
 
-Not natively. etlpipe is a batch-oriented library. For streaming, use PySpark Structured Streaming directly and call etlpipe functions on each micro-batch via `foreachBatch`.
+Not natively. Etlpipe is a batch-oriented library. For streaming, use PySpark Structured Streaming directly and call Etlpipe functions on each micro-batch via `foreachBatch`.
 
 ---
 
@@ -1924,7 +1924,7 @@ Not natively. etlpipe is a batch-oriented library. For streaming, use PySpark St
 ### Current Roadmap (H2)
 
 - **Polars backend**: Third engine for ultra-fast single-machine processing without JVM.
-- **dbt integration**: Native etlpipe â†’ dbt model compilation.
+- **dbt integration**: Native Etlpipe → dbt model compilation.
 - **Enhanced YAML validation**: JSON Schema validation of pipeline YAML before execution begins.
 - **Additional PII patterns**: GDPR-focused European identifier patterns.
 

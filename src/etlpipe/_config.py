@@ -1,4 +1,4 @@
-﻿import threading
+import threading
 from contextlib import contextmanager
 from typing import Any
 

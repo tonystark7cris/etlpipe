@@ -1,4 +1,4 @@
-﻿"""etlpipe-governance â€” Data Quality & Compliance toolkit.
+"""etlpipe-governance — Data Quality & Compliance toolkit.
 
 A standalone sub-package for enterprise-grade data quality, PII detection,
 masking, schema contracts, and statistical profiling.

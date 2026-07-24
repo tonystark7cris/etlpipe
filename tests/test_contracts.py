@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe._contracts â€” schema validation and data contracts."""
+"""Tests for etlpipe._contracts — schema validation and data contracts."""
 
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ class TestInferSchema:
 
 
 # ------------------------------------------------------------------ #
-# expect_schema tests â€” happy path
+# expect_schema tests — happy path
 # ------------------------------------------------------------------ #
 
 
@@ -116,7 +116,7 @@ class TestExpectSchemaPass:
 
 
 # ------------------------------------------------------------------ #
-# expect_schema tests â€” violations
+# expect_schema tests — violations
 # ------------------------------------------------------------------ #
 
 

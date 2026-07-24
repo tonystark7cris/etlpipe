@@ -1,4 +1,4 @@
-﻿# ADR-003: Spin Off Governance Tools into `etlpipe-governance`
+# ADR-003: Spin Off Governance Tools into `etlpipe-governance`
 
 ## Status
 
@@ -8,16 +8,16 @@
 
 ## Context
 
-etlpipe's core positioning is "The Visual ETL Migration Accelerator" â€” a tool
+Etlpipe's core positioning is "The Visual ETL Migration Accelerator" — a tool
 that helps companies move from proprietary GUI tools to open-source Python ETL. This message
 is clean, specific, and targets a well-defined buyer (CFO/CIO who wants to cut
 expensive desktop visual ETL licensing costs, consultants, Data Analysts in transition).
 
-However, etlpipe also ships two powerful features that belong to a completely
+However, Etlpipe also ships two powerful features that belong to a completely
 different market:
 
-1. **`scan_pii`** â€” a PII detection scanner for GDPR/HIPAA compliance
-2. **`expect_schema` / `infer_schema`** â€” a schema contract validation system
+1. **`scan_pii`** — a PII detection scanner for GDPR/HIPAA compliance
+2. **`expect_schema` / `infer_schema`** — a schema contract validation system
 
 These features are excellent, but:
 
@@ -49,7 +49,7 @@ package named **`etlpipe-governance`**, living at
    `etlpipe_governance/`. The shims import from there. No code is duplicated.
 
 3. **Independent installability.** `etlpipe-governance` depends only on
-   `pandas>=1.5` â€” it does not require `etlpipe` to be installed. This
+   `pandas>=1.5` — it does not require `etlpipe` to be installed. This
    allows data quality teams to adopt it without committing to the ETL layer.
 
 4. **Optional integration.** `etlpipe` users can get both packages with:
@@ -64,7 +64,7 @@ compelling standalone value proposition:
 
 | Feature | Description |
 |---|---|
-| `mask_pii(df, report, strategy)` | Three masking strategies: `redact`, `hash`, `pseudonymise`. Fills the gap that GE/Pandera leave open â€” they detect but don't mask. |
+| `mask_pii(df, report, strategy)` | Three masking strategies: `redact`, `hash`, `pseudonymise`. Fills the gap that GE/Pandera leave open — they detect but don't mask. |
 | `profile(df)` | Rich per-column statistics (cardinality, null rate, min/max/mean/std, top-N values). Lighter than `ydata-profiling`. |
 | `ContractSuite` | Run N schema contracts in one call, producing a combined pass/fail audit DataFrame. Suitable for pipeline observability dashboards. |
 
@@ -75,7 +75,7 @@ compelling standalone value proposition:
 - `etlpipe`'s README can focus entirely on the visual ETL migration message.
 - `etlpipe-governance` has a clear standalone identity competing with
   Pandera and Great Expectations.
-- `mask_pii` makes etlpipe-governance uniquely useful â€” it doesn't just
+- `mask_pii` makes etlpipe-governance uniquely useful — it doesn't just
   detect PII, it makes data safe to use downstream.
 - Independent PyPI versioning: governance can ship releases without touching
   the ETL layer.

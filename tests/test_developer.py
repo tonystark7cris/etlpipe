@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.developer â€” Developer class."""
+"""Tests for etlpipe.developer — Developer class."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ class TestBase64Decode:
 
 
 class TestBase64RoundTrip:
-    """Tests for encode â†’ decode round-trip."""
+    """Tests for encode → decode round-trip."""
 
     def test_roundtrip(self) -> None:
         df = pd.DataFrame({"Data": ["test string 123!", "another value"]})

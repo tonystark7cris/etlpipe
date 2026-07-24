@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe._pii â€” PII detection scanner."""
+"""Tests for etlpipe._pii — PII detection scanner."""
 
 from __future__ import annotations
 
@@ -126,7 +126,7 @@ class TestCleanData:
     def test_numeric_columns_skipped(self, clean_df):
         """Value regex scanning should skip non-object columns."""
         report = scan_pii(clean_df, warn=False)
-        # product_id, quantity, price are numeric â€” shouldn't match value patterns
+        # product_id, quantity, price are numeric — shouldn't match value patterns
         numeric_value_hits = report[
             (report["Column"].isin(["product_id", "quantity", "price"]))
             & (report["Detection_Method"] == "value_pattern")

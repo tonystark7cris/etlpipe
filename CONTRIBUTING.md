@@ -1,6 +1,6 @@
-﻿# Contributing to etlpipe
+# Contributing to Etlpipe
 
-Thank you for your interest in contributing to etlpipe! This guide will help you get started.
+Thank you for your interest in contributing to Etlpipe! This guide will help you get started.
 
 ---
 
@@ -36,7 +36,7 @@ pytest tests/ -v
 
 ### Style & Formatting
 
-etlpipe uses **[Ruff](https://docs.astral.sh/ruff/)** for both linting and formatting. Configuration is in [pyproject.toml](pyproject.toml):
+Etlpipe uses **[Ruff](https://docs.astral.sh/ruff/)** for both linting and formatting. Configuration is in [pyproject.toml](pyproject.toml):
 
 - **Target**: Python 3.10
 - **Line length**: 120 characters
@@ -71,7 +71,7 @@ All public methods **must** have Google-style docstrings including:
 
 ### Immutability
 
-All etlpipe tool functions **must** be pure â€” they return new DataFrames and never mutate inputs. This is a core architectural invariant.
+All Etlpipe tool functions **must** be pure — they return new DataFrames and never mutate inputs. This is a core architectural invariant.
 
 ---
 
@@ -107,7 +107,7 @@ New code should maintain or improve overall test coverage. Critical paths (secur
 
 ### Engine Pattern
 
-etlpipe uses an abstract **BackendEngine** pattern:
+Etlpipe uses an abstract **BackendEngine** pattern:
 
 1. **Public API** classes (`Preparation`, `Join`, etc.) are thin dispatchers
 2. They call `get_engine()` to obtain the active backend
@@ -144,7 +144,7 @@ Significant design decisions are documented as ADRs in `doc/adr/`. When proposin
 
 ## Release Process
 
-etlpipe follows [Semantic Versioning](https://semver.org/):
+Etlpipe follows [Semantic Versioning](https://semver.org/):
 
 - **PATCH** (1.0.x): Bug fixes, no API changes
 - **MINOR** (1.x.0): New features, backward-compatible

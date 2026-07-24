@@ -1,15 +1,15 @@
-﻿# End-to-End etlpipe Implementation on Databricks
+# End-to-End Etlpipe Implementation on Databricks
 
-This guide provides a step-by-step walkthrough for implementing a full, production-ready etlpipe project on **Databricks**. 
+This guide provides a step-by-step walkthrough for implementing a full, production-ready Etlpipe project on **Databricks**. 
 
-Because etlpipe features a dynamic dual-engine architecture, you can write familiar etlpipe-like logic in Python, and etlpipe will translate it natively into distributed Spark execution under the hood.
+Because Etlpipe features a dynamic dual-engine architecture, you can write familiar Etlpipe-like logic in Python, and Etlpipe will translate it natively into distributed Spark execution under the hood.
 
 ---
 
 ## Architecture Overview
 
 1. **Ingestion**: Read raw data from Databricks Delta Tables (or DBFS/S3).
-2. **Transformation**: Execute etlpipe logic utilizing the `spark` backend engine.
+2. **Transformation**: Execute Etlpipe logic utilizing the `spark` backend engine.
 3. **Validation**: Assert data quality before loading.
 4. **Load**: Write the transformed data back to a curated Delta Table.
 5. **Orchestration**: Schedule the notebook/script via Databricks Workflows (Jobs).
@@ -18,39 +18,39 @@ Because etlpipe features a dynamic dual-engine architecture, you can write famil
 
 ## Step 1: Cluster Setup
 
-To run etlpipe on Databricks, you need to ensure the Spark backend engine is installed on your cluster.
+To run Etlpipe on Databricks, you need to ensure the Spark backend engine is installed on your cluster.
 
 1. Navigate to your Databricks Workspace -> **Compute**.
 2. Select your target cluster (e.g., Databricks Runtime 13.3 LTS).
 3. Click the **Libraries** tab -> **Install New**.
-4. Select **PyPI** and enter: `etlpipe[spark]`
+4. Select **PyPI** and enter: `Etlpipe[spark]`
 5. Click **Install**. 
 
-Alternatively, if you are using Databricks Repos, add `etlpipe[spark]` to your `requirements.txt`.
+Alternatively, if you are using Databricks Repos, add `Etlpipe[spark]` to your `requirements.txt`.
 
 ---
 
 ## Step 2: Project Structure
 
-When using Databricks Repos (Git integration), we recommend structuring your etlpipe project like a standard software engineering repository:
+When using Databricks Repos (Git integration), we recommend structuring your Etlpipe project like a standard software engineering repository:
 
 ```text
 /my-databricks-project
-â”œâ”€â”€ notebooks/
-â”‚   â””â”€â”€ 01_run_pipeline.py     # Main entry point for Databricks Jobs
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ config.yaml            # Pipeline configuration
-â”‚   â””â”€â”€ pipeline.py            # Core etlpipe logic
-â”œâ”€â”€ tests/
-â”‚   â””â”€â”€ test_pipeline.py       # Unit tests (run locally via Pytest)
-â””â”€â”€ requirements.txt           # etlpipe[spark], etc.
+├── notebooks/
+│   └── 01_run_pipeline.py     # Main entry point for Databricks Jobs
+├── src/
+│   ├── config.yaml            # Pipeline configuration
+│   └── pipeline.py            # Core Etlpipe logic
+├── tests/
+│   └── test_pipeline.py       # Unit tests (run locally via Pytest)
+└── requirements.txt           # Etlpipe[spark], etc.
 ```
 
 ---
 
 ## Step 3: Core Pipeline Implementation (`src/pipeline.py`)
 
-Here is the core business logic. We explicitly configure etlpipe to use the `spark` backend so that operations execute on the cluster rather than the driver node.
+Here is the core business logic. We explicitly configure Etlpipe to use the `spark` backend so that operations execute on the cluster rather than the driver node.
 
 ```python
 import etlpipe
@@ -61,13 +61,13 @@ def run_customer_360_pipeline():
     # 0. Set Backend to Spark
     # ==========================================
     etlpipe.set_backend("spark")
-    print("Executing etlpipe Pipeline on Apache Spark Backend...")
+    print("Executing Etlpipe Pipeline on Apache Spark Backend...")
 
     # ==========================================
     # 1. Ingest Data from Delta Tables
     # ==========================================
     # In Databricks, you can query Delta tables directly via Spark SQL syntax
-    # etlpipe's spark backend treats SQL queries natively.
+    # Etlpipe's spark backend treats SQL queries natively.
     df_customers = InOut.input_data("dbfs:/mnt/lakehouse/raw/customers")
     df_orders = InOut.input_data("dbfs:/mnt/lakehouse/raw/orders")
     
@@ -176,7 +176,7 @@ run_customer_360_pipeline()
 To run this pipeline automatically:
 
 1. Navigate to **Workflows** in the Databricks sidebar and click **Create Job**.
-2. Name the Job: `etlpipe_Customer360_ETL`.
+2. Name the Job: `Etlpipe_Customer360_ETL`.
 3. In the task configuration:
    - **Type**: Notebook
    - **Source**: Workspace (or Git if using Repos).
@@ -189,5 +189,5 @@ To run this pipeline automatically:
 ## Databricks Specific Best Practices
 
 - **Leverage Delta Lake**: When using `InOut.input_data` and `InOut.output_data`, specify paths starting with `dbfs:/` and utilize the `format="delta"` argument to leverage Databricks' optimized storage layer.
-- **Job Clusters vs. All-Purpose Clusters**: For scheduled etlpipe pipelines, use **Job Clusters**. They are significantly cheaper and automatically terminate when the etlpipe workflow completes.
+- **Job Clusters vs. All-Purpose Clusters**: For scheduled Etlpipe pipelines, use **Job Clusters**. They are significantly cheaper and automatically terminate when the Etlpipe workflow completes.
 - **Avoid `.browse()` in Production**: While `InOut.browse()` is fantastic for debugging interactively in a Notebook, remove it from production scripts, as it forces Spark to collect data to the driver node, which can cause Out-Of-Memory (OOM) errors on massive datasets.

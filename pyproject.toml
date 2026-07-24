@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "etlpipe"
 dynamic = ["version"]
-description = "The fastest path from proprietary visual ETL to open-source Python â€” visual ETL migration engine with dual Pandas/PySpark execution."
+description = "The fastest path from proprietary visual ETL to open-source Python — visual ETL migration engine with dual Pandas/PySpark execution."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

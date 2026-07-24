@@ -1,12 +1,12 @@
-﻿# Security Policy
+# Security Policy
 
 ## Supported Versions
 
 | Version | Supported          |
 |---------|--------------------|
-| 1.0.x   | âœ… Active support  |
-| 0.2.x   | âš ï¸ Critical fixes only |
-| < 0.2   | âŒ End of life     |
+| 1.0.x   | ✅ Active support  |
+| 0.2.x   | ⚠️ Critical fixes only |
+| < 0.2   | ❌ End of life     |
 
 ## Reporting a Vulnerability
 
@@ -14,14 +14,14 @@
 
 Instead, please report them privately via email:
 
-ðŸ“§ **nihaltripathi6@gmail.com**
+📧 **nihaltripathi6@gmail.com**
 
 Please include:
 
 1. **Description** of the vulnerability
 2. **Steps to reproduce** (or a proof-of-concept)
-3. **Impact assessment** â€” what an attacker could achieve
-4. **Affected versions** â€” which versions are impacted
+3. **Impact assessment** — what an attacker could achieve
+4. **Affected versions** — which versions are impacted
 5. **Suggested fix** (optional but appreciated)
 
 ### Response Timeline
@@ -35,9 +35,9 @@ Please include:
 
 ## Security Track Record
 
-etlpipe takes security seriously. Past security fixes include:
+Etlpipe takes security seriously. Past security fixes include:
 
-### v1.0.0 â€” Critical RCE Fix
+### v1.0.0 — Critical RCE Fix
 
 - **Issue**: `Preparation.formula()` had an `eval()` fallback that allowed arbitrary code execution via crafted expression strings.
 - **Fix**: Removed `eval()` entirely. Engine now uses sandboxed `pd.eval()` (Pandas) and `F.expr()` (Spark SQL) exclusively. Complex logic requires explicit `lambda` callables.
@@ -46,14 +46,14 @@ etlpipe takes security seriously. Past security fixes include:
 
 ## Security Measures in CI/CD
 
-etlpipe's CI pipeline includes automated security scanning on every push and PR:
+Etlpipe's CI pipeline includes automated security scanning on every push and PR:
 
-- **[Bandit](https://bandit.readthedocs.io/)** â€” Static security analysis of Python source code
-- **[pip-audit](https://pypi.org/project/pip-audit/)** â€” Dependency vulnerability scanning against the OSV database
-- **OIDC Trusted Publishing** â€” PyPI releases use GitHub OIDC tokens (no stored secrets)
-- **`yaml.safe_load()`** â€” YAML parsing uses safe loader to prevent code injection
-- **`defusedxml`** â€” XML parsing uses defusedxml to prevent XXE attacks
-- **Pickle deprecation** â€” Pickle format support is deprecated (CWE-502) and will be removed in v2.0
+- **[Bandit](https://bandit.readthedocs.io/)** — Static security analysis of Python source code
+- **[pip-audit](https://pypi.org/project/pip-audit/)** — Dependency vulnerability scanning against the OSV database
+- **OIDC Trusted Publishing** — PyPI releases use GitHub OIDC tokens (no stored secrets)
+- **`yaml.safe_load()`** — YAML parsing uses safe loader to prevent code injection
+- **`defusedxml`** — XML parsing uses defusedxml to prevent XXE attacks
+- **Pickle deprecation** — Pickle format support is deprecated (CWE-502) and will be removed in v2.0
 
 ## Best Practices for Users
 

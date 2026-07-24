@@ -1,7 +1,7 @@
-﻿"""PII (Personally Identifiable Information) scanner and masker.
+"""PII (Personally Identifiable Information) scanner and masker.
 
 Provides automated detection of columns that may contain sensitive
-personal data â€” a critical requirement for GDPR, HIPAA, SOX, CCPA,
+personal data — a critical requirement for GDPR, HIPAA, SOX, CCPA,
 and other regulatory compliance frameworks used in enterprise deployments.
 
 Two-step workflow::
@@ -24,7 +24,7 @@ Masking strategies
 
 ``"hash"``
     Replaces each value with the first 12 characters of its SHA-256
-    hex digest (deterministic â€” same input always produces the same
+    hex digest (deterministic — same input always produces the same
     token). Useful for referential integrity checks without exposing
     raw PII.
 
@@ -256,7 +256,7 @@ def scan_pii(
 
 
 # ---------------------------------------------------------------------------
-# mask_pii  â€” the competitive differentiator vs Pandera / Great Expectations
+# mask_pii  — the competitive differentiator vs Pandera / Great Expectations
 # ---------------------------------------------------------------------------
 
 
@@ -272,7 +272,7 @@ def mask_pii(
 ) -> pd.DataFrame | tuple[pd.DataFrame, dict[str, dict[str, str]]]:
     """Mask PII columns in a DataFrame using the specified strategy.
 
-    This is the critical missing piece in tools like Great Expectations â€”
+    This is the critical missing piece in tools like Great Expectations —
     it not only detects PII but makes it safe to use downstream.
 
     Args:
@@ -287,7 +287,7 @@ def mask_pii(
             ``"hash"``
                 Replaces each value with the first *hash_length*
                 characters of its SHA-256 hex digest.  Deterministic
-                and referentially consistent â€” the same raw value always
+                and referentially consistent — the same raw value always
                 maps to the same hash.  Use for joining masked datasets.
 
             ``"pseudonymise"``
@@ -295,7 +295,7 @@ def mask_pii(
                 ``PERSON_2``) to each unique value. Maintains row-level
                 referential integrity. Returns a ``tuple`` of
                 ``(masked_df, mapping_dict)`` where *mapping_dict* maps
-                column â†’ {original_value â†’ pseudo_label}.  The caller
+                column → {original_value → pseudo_label}.  The caller
                 is responsible for storing the mapping securely.
 
         redact_value: Replacement string for the ``"redact"`` strategy.

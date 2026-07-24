@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.convert â€” .yxmd â†’ etlpipe YAML converter."""
+"""Tests for etlpipe.convert — .yxmd → Etlpipe YAML converter."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from etlpipe.convert import (
     _translate_yxmd_expression,
 )
 
-# â”€â”€ Path to the shared fixture â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Path to the shared fixture ──────────────────────────────────────────────
 FIXTURES = Path(__file__).parent / "fixtures"
 SAMPLE_YXMD = FIXTURES / "sample_workflow.yxmd"
 
@@ -100,7 +100,7 @@ class TestTranslateYxmdExpression:
 
 
 # ============================================================================
-# YxmdConverter â€” core functionality
+# YxmdConverter — core functionality
 # ============================================================================
 
 
@@ -132,7 +132,7 @@ class TestYxmdConverterCoverage:
         assert 0.0 <= c.coverage <= 1.0
 
     def test_sample_workflow_fully_covered(self):
-        """All tools in the fixture have known etlpipe mappings."""
+        """All tools in the fixture have known Etlpipe mappings."""
         c = YxmdConverter(SAMPLE_YXMD)
         assert c.coverage == 1.0
 
@@ -257,7 +257,7 @@ class TestYxmdConverterToYaml:
         assert sel_step is not None
         cols = sel_step.get("args", {}).get("columns", [])
         assert "Revenue" in cols
-        # InternalNote was de-selected â€” must not appear
+        # InternalNote was de-selected — must not appear
         assert "InternalNote" not in cols
 
     def test_formula_column_parsed(self, parsed_steps):

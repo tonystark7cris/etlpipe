@@ -1,4 +1,4 @@
-﻿"""PySpark backend engine implementation for etlpipe.
+"""PySpark backend engine implementation for etlpipe.
 
 Executes operations using native Spark SQL, Vectorized Pandas UDFs,
 or Driver-side fallbacks based on the 3-Tier execution strategy.
@@ -120,7 +120,7 @@ class SparkEngine(BackendEngine):
         estimated = self._estimate_df_size(df)
         if estimated > self.max_collect_bytes:
             raise MemoryError(
-                f"[{operation_name}] etlpipeMemoryError: Estimated collection size "
+                f"[{operation_name}] EtlpipeMemoryError: Estimated collection size "
                 f"(~{estimated // 1024**2} MB) exceeds maximum threshold "
                 f"({self.max_collect_bytes // 1024**2} MB). "
                 f"Consider filtering data before this operation or increasing max_collect_bytes."
@@ -245,7 +245,7 @@ class SparkEngine(BackendEngine):
             # Transpile Python/Pandas equality syntax to Spark SQL equality syntax
             if isinstance(expression, str):
                 # Note: Spark SQL uses `=` for equality comparison, but blindly replacing
-                # `==` with `=` is dangerous â€” it can turn boolean comparisons like
+                # `==` with `=` is dangerous — it can turn boolean comparisons like
                 # `A == 'value'` into assignment-like expressions in some contexts.
                 # We keep `==` as-is because Spark SQL `expr()` also accepts `==`
                 # for comparisons since Spark 2.x+.
@@ -390,7 +390,7 @@ class SparkEngine(BackendEngine):
             out = df.orderBy(F.rand(seed)).limit(n)
         elif position == "last":
             # df.tail(n) is available since Spark 3.0 and avoids a full count() + sort.
-            # It collects the tail rows to the driver then re-distributes â€” acceptable for small n.
+            # It collects the tail rows to the driver then re-distributes — acceptable for small n.
             tail_rows = df.tail(n)
             out = self.spark.createDataFrame(tail_rows, schema=df.schema)
         else:

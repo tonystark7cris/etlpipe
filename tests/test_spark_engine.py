@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import pytest
 
 from etlpipe import Developer, Join, Preparation, Transform
@@ -20,7 +20,7 @@ def spark():
     """Create a local Spark session for testing."""
     session = (
         SparkSession.builder.master("local[2]")
-        .appName("etlpipeTest")
+        .appName("EtlpipeTest")
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")
         .getOrCreate()
     )
@@ -102,7 +102,7 @@ def test_driver_size_guard(spark):
     engine = get_engine()
     engine.max_collect_bytes = 10  # 10 bytes
 
-    with pytest.raises(MemoryError, match="etlpipeMemoryError"):
+    with pytest.raises(MemoryError, match="EtlpipeMemoryError"):
         # test_equal collects to driver
         Developer.test_equal(df, df)
 

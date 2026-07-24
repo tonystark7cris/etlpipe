@@ -1,4 +1,4 @@
-﻿"""Shared input validation helpers for etlpipe tool functions.
+"""Shared input validation helpers for etlpipe tool functions.
 
 Every public tool function validates its inputs through these helpers
 to provide clear, consistent error messages across the library.

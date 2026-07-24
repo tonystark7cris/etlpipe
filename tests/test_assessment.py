@@ -1,13 +1,13 @@
-﻿"""Comprehensive enterprise assessment test suite for etlpipe.
+"""Comprehensive enterprise assessment test suite for etlpipe.
 
 Tests cover all 7 focus areas identified in the Deloitte package assessment:
-1. Functional Validation â€” core tool correctness and schema preservation
-2. Edge Cases & Robustness â€” empty data, nulls, extremes, duplicates
-3. Performance â€” regression markers for large datasets
-4. Integration â€” import and export compatibility
-5. Security â€” injection, RCE vectors, safe defaults
-6. Packaging â€” imports, version, CLI
-7. Documentation â€” README example accuracy
+1. Functional Validation — core tool correctness and schema preservation
+2. Edge Cases & Robustness — empty data, nulls, extremes, duplicates
+3. Performance — regression markers for large datasets
+4. Integration — import and export compatibility
+5. Security — injection, RCE vectors, safe defaults
+6. Packaging — imports, version, CLI
+7. Documentation — README example accuracy
 
 Run with:  pytest tests/test_assessment.py -v --tb=long
 """
@@ -606,7 +606,7 @@ class TestEdgeCases:
 
 
 # ====================================================================== #
-#  3. PERFORMANCE (Markers only â€” not run by default)
+#  3. PERFORMANCE (Markers only — not run by default)
 # ====================================================================== #
 
 
@@ -673,7 +673,7 @@ class TestSecurity:
         """Document that pickle is supported (potential RCE vector)."""
         from etlpipe.in_out import _READERS
 
-        # This test documents the risk â€” pickle is currently supported
+        # This test documents the risk — pickle is currently supported
         assert ".pkl" in _READERS or ".pickle" in _READERS
 
     def test_download_does_not_hang_on_bad_url(self) -> None:
@@ -803,7 +803,7 @@ class TestPackaging:
 
 
 # ====================================================================== #
-#  7. DOCUMENTATION â€” README example verification
+#  7. DOCUMENTATION — README example verification
 # ====================================================================== #
 
 
@@ -1006,7 +1006,7 @@ class TestDeveloperTools:
 
 
 # ====================================================================== #
-#  TRANSFORM TOOLS â€” Advanced
+#  TRANSFORM TOOLS — Advanced
 # ====================================================================== #
 
 
@@ -1030,7 +1030,7 @@ class TestTransformAdvanced:
                 "Phone": ["Home", "Work", "Cell"],
             },
         )
-        # Should have 6 rows (2 IDs Ã— 3 phone types)
+        # Should have 6 rows (2 IDs × 3 phone types)
         assert len(result) == 6
 
     def test_make_columns(self) -> None:
@@ -1075,7 +1075,7 @@ class TestTransformAdvanced:
 
 
 # ====================================================================== #
-#  JOIN TOOLS â€” Advanced
+#  JOIN TOOLS — Advanced
 # ====================================================================== #
 
 

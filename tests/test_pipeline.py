@@ -1,4 +1,4 @@
-﻿"""Tests for etlpipe.pipeline â€” Declarative YAML pipelines."""
+"""Tests for etlpipe.pipeline — Declarative YAML pipelines."""
 
 from pathlib import Path
 

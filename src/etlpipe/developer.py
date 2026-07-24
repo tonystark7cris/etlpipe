@@ -1,4 +1,4 @@
-﻿"""Developer â€” Utility and advanced tools.
+"""Developer — Utility and advanced tools.
 
 **Developer** tool palette: base64 encoding,
 HTTP downloads, schema inspection, and dynamic renaming.
@@ -15,7 +15,7 @@ import pandas as pd
 
 
 class Developer:
-    """etlpipe **Developer** tool palette.
+    """Etlpipe **Developer** tool palette.
 
     Provides static methods for encoding, downloading, schema
     inspection, and dynamic column renaming.
@@ -103,7 +103,7 @@ class Developer:
             output_column: Name of the output column.
             max_retries: Maximum number of retry attempts (default 3).
             retry_delay: Base delay in seconds between retries (default 1.0).
-                Uses exponential backoff: delay Ã— 2^(attempt-1).
+                Uses exponential backoff: delay × 2^(attempt-1).
 
         Returns:
             A DataFrame containing the downloaded data.

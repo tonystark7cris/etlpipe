@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "etlpipe-governance"
 dynamic = ["version"]
-description = "Enterprise data quality toolkit â€” PII detection & masking, schema contracts, statistical profiling, and audit suites."
+description = "Enterprise data quality toolkit — PII detection & masking, schema contracts, statistical profiling, and audit suites."
 readme = "README_GOVERNANCE.md"
 license = "MIT"
 requires-python = ">=3.10"

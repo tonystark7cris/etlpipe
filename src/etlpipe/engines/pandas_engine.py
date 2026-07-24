@@ -1,4 +1,4 @@
-﻿"""Pandas backend engine implementation for etlpipe.
+"""Pandas backend engine implementation for etlpipe.
 
 Wraps the original pandas execution logic for all 55 tool functions.
 """
@@ -186,7 +186,7 @@ class PandasEngine(BackendEngine):
         for col in columns:
             if out[col].dtype == object or pd.api.types.is_string_dtype(out[col]):
                 # Preserve NaN values: save the null mask before str operations
-                # to prevent .astype(str) from converting NaN â†’ "nan"
+                # to prevent .astype(str) from converting NaN → "nan"
                 null_mask = out[col].isna()
                 if strip_whitespace:
                     out[col] = out[col].astype(str).str.strip()
@@ -1179,7 +1179,7 @@ class PandasEngine(BackendEngine):
         validate_dataframe(df)
 
         print("=" * 60)
-        print(f"Shape: {df.shape[0]} rows Ã— {df.shape[1]} columns")
+        print(f"Shape: {df.shape[0]} rows × {df.shape[1]} columns")
         print("-" * 60)
 
         info_df = pd.DataFrame(
@@ -1486,7 +1486,7 @@ class PandasEngine(BackendEngine):
                     if status_code and status_code >= 500:
                         raise urllib.error.URLError(f"Server error: HTTP {status_code}")
                     body = response.read().decode("utf-8")
-                break  # Success â€” exit retry loop
+                break  # Success — exit retry loop
             except (urllib.error.URLError, TimeoutError, OSError) as e:
                 if attempt < max_retries:
                     wait = retry_delay * (2 ** (attempt - 1))  # Exponential backoff

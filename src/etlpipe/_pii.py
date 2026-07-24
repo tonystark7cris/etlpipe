@@ -1,4 +1,4 @@
-﻿"""PII scanner â€” backward-compatibility shim.
+"""PII scanner — backward-compatibility shim.
 
 The PII detection implementation has moved to the ``etlpipe-governance``
 sub-package.  This module re-exports everything from there so that all

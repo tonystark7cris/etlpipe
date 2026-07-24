@@ -1,4 +1,4 @@
-﻿"""Parse â€” Text and date parsing tools.
+"""Parse — Text and date parsing tools.
 
 **Parse** tool palette: date/time formatting,
 regular expressions, text splitting, and XML parsing.
@@ -14,7 +14,7 @@ import pandas as pd
 
 
 class Parse:
-    """etlpipe **Parse** tool palette.
+    """Etlpipe **Parse** tool palette.
 
     Provides static methods for date/time conversion, regex operations,
     text splitting, and XML extraction.
