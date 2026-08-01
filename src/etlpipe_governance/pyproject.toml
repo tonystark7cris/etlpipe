@@ -36,6 +36,10 @@ dependencies = [
     "pandas>=1.5.0,<3.0",
 ]
 
+[project.optional-dependencies]
+yaml = ["PyYAML>=6.0,<7.0"]
+all = ["PyYAML>=6.0,<7.0"]
+
 [project.urls]
 Homepage = "https://github.com/tonystark7cris/etlpipe"
 Documentation = "https://github.com/tonystark7cris/etlpipe#readme"
