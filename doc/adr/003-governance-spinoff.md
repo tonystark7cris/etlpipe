@@ -68,6 +68,19 @@ compelling standalone value proposition:
 | `profile(df)` | Rich per-column statistics (cardinality, null rate, min/max/mean/std, top-N values). Lighter than `ydata-profiling`. |
 | `ContractSuite` | Run N schema contracts in one call, producing a combined pass/fail audit DataFrame. Suitable for pipeline observability dashboards. |
 
+### Features added in v0.2.0
+
+Enterprise extensions that bring `etlpipe-governance` to production readiness:
+
+| Feature | Description |
+|---|---|
+| Value-level rules | `min_value`, `max_value`, `allowed_values`, `value_regex`, `min_length`, `max_length`, `unique` constraints per column inside `expect_schema`. |
+| `expect_row_count` | Guard against empty tables, truncated feeds, or data explosions. |
+| `expect_freshness` | Assert datetime columns contain recent data (stale feed detection). |
+| `load_schema` / `save_schema` | YAML/JSON schema-as-code. Store schemas in Git, not in Python code. |
+| `AuditTrail` | Persist every governance run to a queryable JSONL log with `run_id` and timestamps. |
+| `export_report` | Self-contained dark-mode HTML or structured JSON report export. |
+
 ## Consequences
 
 ### Positive

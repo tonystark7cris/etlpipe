@@ -27,7 +27,7 @@ Etlpipe is the **Visual ETL Migration Accelerator**. It provides a 1:1 API mappi
 - **For Data Analysts:** Zero friction. Workflows translate 1:1 using familiar concepts (`Summarize`, `Join`, `Formula`) and visual anchors (`L, J, R` or `T, F` tuples).
 - **For Data Engineers & Consultants:** Automated CLI tool (`etlpipe-convert`) translates `.yxmd` XML workflows into executable Etlpipe YAML/Python pipelines automatically.
 - **Enterprise Scalability (Dual Backend):** Develop locally using **Pandas**, then switch backend to **PySpark** with one line (`etlpipe.set_backend("spark")`) to scale across distributed clusters without altering business logic.
-- **Standalone Data Governance:** Integrated or modular data quality via `etlpipe-governance` (PII scanning/masking and schema contracts).
+- **Standalone Data Governance:** Integrated or modular data quality via `etlpipe-governance` (PII scanning/masking, schema contracts with value-level rules, volume & freshness checks, YAML schemas, audit trails, and HTML reporting).
 
 ---
 
@@ -393,40 +393,70 @@ hashed_df = mask_pii(df, report, strategy="hash")                  # Replaces wi
 pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise") # Replaces with labels (e.g. EMAIL_1)
 ```
 
-### 2. Schema Contracts (`expect_schema` / `infer_schema`)
-Enforce schema integrity and prevent silent pipeline failures due to schema drift:
+### 2. Schema Contracts with Value-Level Rules (`expect_schema` / `infer_schema`)
+Enforce schema integrity with dtype checks, nullability, **and value-level constraints** — catch bad data before it propagates:
 
 ```python
 from etlpipe import expect_schema, infer_schema
 
-# Bootstrap schema definition from a clean dataset
-schema = infer_schema(reference_df)
-
-# Validate incoming DataFrame against expected schema
+# Validate with value-level rules
 expect_schema(new_df, {
     "columns": {
-        "CustomerID": {"dtype": "int", "nullable": False},
-        "Email": {"dtype": "str", "nullable": True},
-        "Revenue": {"dtype": "float", "nullable": False},
+        "CustomerID": {"dtype": "int", "nullable": False, "unique": True},
+        "Email": {"dtype": "str", "value_regex": r".+@.+\..+"},
+        "Revenue": {"dtype": "float", "min_value": 0.0},
+        "Status": {"dtype": "str", "allowed_values": ["active", "inactive", "pending"]},
     }
 })
 ```
 
-### 3. Data Profiling (`profile`) & Audit Checkpoints (`ContractSuite`)
-Profile column distributions or execute batch audits across multiple pipeline stages:
+### 3. Volume & Freshness Checks
+Guard against empty tables, truncated feeds, and stale data:
 
 ```python
-from etlpipe_governance import profile, ContractSuite
+from etlpipe_governance import expect_row_count, expect_freshness
+from datetime import timedelta
 
-# Profile column metrics (Null rates, cardinality %, min/max/mean/std, top-N values)
+expect_row_count(df, min_rows=1000, max_rows=5_000_000)
+expect_freshness(df, column="updated_at", max_age=timedelta(hours=6))
+```
+
+### 4. YAML Schema-as-Code
+Store schemas as version-controlled files alongside your pipelines:
+
+```python
+from etlpipe_governance import load_schema, save_schema
+
+schema = load_schema("schemas/sales.yaml")  # or .json
+expect_schema(df, schema)
+```
+
+### 5. Audit Suites, Trail & Reporting
+Execute batch audits with volume/freshness checks, persist results, and export HTML reports:
+
+```python
+from etlpipe_governance import ContractSuite, AuditTrail, export_report, profile
+from datetime import timedelta
+
+# Profile column metrics
 profile_df = profile(df)
 
-# Execute batch audit suite across pipeline checkpoints
+# Execute batch audit suite with volume and freshness gates
+trail = AuditTrail("./governance_logs")
 suite = ContractSuite("ETL Pipeline Ingestion Audit")
 suite.add_contract("raw_sales", raw_schema, strict=True)
 suite.add_contract("cleaned_sales", cleaned_schema, strict=False)
+suite.add_volume_check("raw_sales", min_rows=500)
+suite.add_freshness_check("raw_sales", column="created_at", max_age=timedelta(days=1))
 
-audit_report = suite.run({"raw_sales": sales_df, "cleaned_sales": cleaned_df})
+audit_report = suite.run(
+    {"raw_sales": sales_df, "cleaned_sales": cleaned_df},
+    audit_trail=trail,
+    run_id="daily_2026-08-01",
+)
+
+# Export a self-contained HTML report
+export_report(audit_report, "reports/audit.html")
 print(audit_report[["Contract", "Status", "Violation_Count"]])
 ```
 

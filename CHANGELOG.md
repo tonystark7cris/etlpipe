@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] — 2026-08-01
+
+### Added (`etlpipe-governance` v0.2.0)
+- **Value-Level Expectation Rules**: `expect_schema` now supports `min_value`, `max_value`, `allowed_values`, `value_regex`, `min_length`, `max_length`, and `unique` constraints per column. Old schemas remain fully backward-compatible.
+- **Volume Checks**: New `expect_row_count()` function and `ContractSuite.add_volume_check()` method to guard against empty tables, truncated feeds, or unexpected data explosions.
+- **Freshness Checks**: New `expect_freshness()` function and `ContractSuite.add_freshness_check()` method to assert datetime columns contain sufficiently recent data (stale feed detection).
+- **YAML / JSON Schema-as-Code**: New `load_schema()` and `save_schema()` functions to store schema contracts as version-controlled files (`.yaml`, `.yml`, `.json`). Optional `PyYAML` dependency.
+- **Audit Trail**: New `AuditTrail` class that persists every `ContractSuite.run()` result to a queryable JSONL log with `run_id`, timestamps, and custom metadata. Supports filtering by `days` or `run_id`.
+- **HTML / JSON Report Export**: New `export_report()` function that generates self-contained dark-mode HTML reports or structured JSON reports from governance results.
+- **`ContractSuite` Integration**: `suite.run()` now accepts `audit_trail` and `run_id` parameters for automatic persistence. Volume and freshness checks appear as rows in the combined report.
+
+### Changed
+- **`etlpipe-governance` version bumped to 0.2.0**.
+- **`ContractSuite.__len__`** now includes volume and freshness checks in the count.
+- **`pyproject.toml`** updated with optional `[yaml]` and `[all]` dependency extras.
+
 ## [2.0.0] — 2026-07-22
 
 ### Added

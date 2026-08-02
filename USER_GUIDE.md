@@ -1523,6 +1523,8 @@ steps:
 
 ## 12. Enterprise Governance
 
+Etlpipe includes a full data governance toolkit (also available as standalone `pip install etlpipe-governance`). It provides PII detection/masking, schema contracts with value-level rules, volume & freshness checks, YAML schema-as-code, audit trails, and HTML reporting.
+
 ### PII Detection
 
 Automatically detect columns containing Personally Identifiable Information before data flows downstream:
@@ -1556,9 +1558,23 @@ report = scan_pii(df, patterns=custom)
 
 ---
 
-### Data Contracts (Schema Validation)
+### PII Masking
 
-Enforce expected schema to catch column drift, type changes, or unexpected nulls early:
+Three masking strategies to make data safe for downstream use:
+
+```python
+from etlpipe_governance import mask_pii
+
+safe_df = mask_pii(df, report, strategy="redact")                  # ***REDACTED***
+hashed_df = mask_pii(df, report, strategy="hash")                  # SHA-256 tokens
+pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise") # EMAIL_1, PERSON_2
+```
+
+---
+
+### Data Contracts (Schema Validation with Value-Level Rules)
+
+Enforce expected schema to catch column drift, type changes, unexpected nulls, **and invalid values** early:
 
 ```python
 from etlpipe import expect_schema, infer_schema, InOut, SchemaViolationError
@@ -1567,20 +1583,34 @@ from etlpipe import expect_schema, infer_schema, InOut, SchemaViolationError
 df = InOut.input_data("reference_data.csv")
 schema = infer_schema(df)
 
-# Enforce: validate new data against the saved contract
+# Enforce: validate new data with value-level rules
 new_df = InOut.input_data("new_data.csv")
 try:
     expect_schema(new_df, {
         "columns": {
-            "CustomerID": {"dtype": "int", "nullable": False},
-            "Name":       {"dtype": "str", "nullable": True},
-            "Revenue":    {"dtype": "float", "nullable": False},
+            "CustomerID": {"dtype": "int", "nullable": False, "unique": True},
+            "Name":       {"dtype": "str", "max_length": 100},
+            "Revenue":    {"dtype": "float", "nullable": False, "min_value": 0.0},
+            "Status":     {"dtype": "str", "allowed_values": ["active", "inactive", "pending"]},
+            "Email":      {"dtype": "str", "value_regex": r".+@.+\..+"},
         }
     })
 except SchemaViolationError as e:
     print(f"Schema violation: {e}")
     raise
 ```
+
+**Available value-level rules:**
+
+| Rule | Description |
+|---|---|
+| `min_value` | All non-null values must be >= this value |
+| `max_value` | All non-null values must be <= this value |
+| `allowed_values` | Column values must be in this list (enum check) |
+| `value_regex` | Each non-null value must fully match this regex |
+| `min_length` | String length must be >= this value |
+| `max_length` | String length must be <= this value |
+| `unique` | Column must have no duplicate values |
 
 **Inline in YAML pipelines:**
 
@@ -1592,9 +1622,101 @@ steps:
       path: "data.csv"
     output_schema:
       columns:
-        CustomerID: {dtype: "int", nullable: false}
-        Revenue:    {dtype: "float", nullable: false}
-        Name:       {dtype: "str", nullable: true}
+        CustomerID: {dtype: "int", nullable: false, unique: true}
+        Revenue:    {dtype: "float", nullable: false, min_value: 0.0}
+        Status:     {dtype: "str", allowed_values: ["active", "inactive"]}
+```
+
+---
+
+### YAML / JSON Schema-as-Code
+
+Store schemas as version-controlled files alongside your pipelines instead of hard-coding them in Python:
+
+```python
+from etlpipe_governance import load_schema, save_schema, infer_schema
+
+# Infer a schema from known-good data and save it
+schema = infer_schema(reference_df)
+save_schema(schema, "schemas/sales.yaml")
+
+# Load and validate in production
+schema = load_schema("schemas/sales.yaml")  # also supports .json
+expect_schema(new_df, schema)
+```
+
+**Example `schemas/sales.yaml`:**
+
+```yaml
+columns:
+  OrderID:
+    dtype: int
+    nullable: false
+    unique: true
+  Amount:
+    dtype: float
+    min_value: 0.0
+  Status:
+    dtype: str
+    allowed_values: [pending, shipped, cancelled, returned]
+  CreatedAt:
+    dtype: datetime
+    nullable: false
+```
+
+---
+
+### Volume & Freshness Checks
+
+Guard against empty tables, truncated feeds, and stale data — the most common production pipeline failure modes:
+
+```python
+from etlpipe_governance import expect_row_count, expect_freshness
+from datetime import timedelta
+
+# Fail if table has fewer than 1000 rows or more than 5 million
+expect_row_count(df, min_rows=1000, max_rows=5_000_000)
+
+# Fail if the newest record in 'updated_at' is older than 6 hours
+expect_freshness(df, column="updated_at", max_age=timedelta(hours=6))
+```
+
+---
+
+### Audit Suites, Trail & Reporting
+
+Compose schema contracts, volume checks, and freshness checks into a single audit run. Persist results to a queryable JSONL audit trail and export self-contained HTML reports:
+
+```python
+from etlpipe_governance import ContractSuite, AuditTrail, export_report, profile
+from datetime import timedelta
+
+# Profile column metrics (Null rates, cardinality %, min/max/mean/std, top-N values)
+profile_df = profile(df)
+
+# Set up audit trail
+trail = AuditTrail("./governance_logs")
+
+# Build a comprehensive audit suite
+suite = ContractSuite("ETL Pipeline Ingestion Audit")
+suite.add_contract("raw_sales", raw_schema, strict=True)
+suite.add_contract("cleaned_sales", cleaned_schema, strict=False)
+suite.add_volume_check("raw_sales", min_rows=500, max_rows=10_000_000)
+suite.add_freshness_check("raw_sales", column="created_at", max_age=timedelta(days=1))
+
+# Run with audit trail
+audit_report = suite.run(
+    {"raw_sales": sales_df, "cleaned_sales": cleaned_df},
+    audit_trail=trail,
+    run_id="daily_2026-08-01",
+)
+
+# Export a self-contained HTML report (dark-mode, no CDN dependencies)
+export_report(audit_report, "reports/audit_2026-08-01.html")
+
+# Query historical audit results
+history = trail.load(days=7)
+failures = history[history["Status"] == "FAIL"]
 ```
 
 ---
