@@ -32,8 +32,8 @@ report = scan_pii(df)
 print(report[["Column", "PII_Type", "Confidence"]])
 
 # Step 2: Mask the detected PII before sharing or saving
-safe_df = mask_pii(df, report, strategy="redact")       # ***REDACTED***
-hashed_df = mask_pii(df, report, strategy="hash")        # SHA-256 tokens
+safe_df = mask_pii(df, report, strategy="redact")  # ***REDACTED***
+hashed_df = mask_pii(df, report, strategy="hash")  # SHA-256 tokens
 pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise")  # EMAIL_1, PERSON_2
 ```
 
@@ -47,14 +47,17 @@ Enforce strict data type, nullability, and **value-level** constraints at your p
 from etlpipe_governance import expect_schema, SchemaViolationError
 
 try:
-    expect_schema(df, {
-        "columns": {
-            "Age": {"dtype": "int", "nullable": False, "min_value": 0, "max_value": 120},
-            "Status": {"dtype": "str", "allowed_values": ["active", "inactive", "pending"]},
-            "Email": {"dtype": "str", "value_regex": r".+@.+\..+"},
-            "OrderID": {"dtype": "int", "unique": True},
-        }
-    })
+    expect_schema(
+        df,
+        {
+            "columns": {
+                "Age": {"dtype": "int", "nullable": False, "min_value": 0, "max_value": 120},
+                "Status": {"dtype": "str", "allowed_values": ["active", "inactive", "pending"]},
+                "Email": {"dtype": "str", "value_regex": r".+@.+\..+"},
+                "OrderID": {"dtype": "int", "unique": True},
+            }
+        },
+    )
 except SchemaViolationError as e:
     print(f"Pipeline halted! {e.violations}")
 ```
