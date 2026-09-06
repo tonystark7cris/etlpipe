@@ -16,12 +16,21 @@ from typing import Any
 import pandas as pd
 
 # Security: Pickle deserialization is an arbitrary code execution vector (CWE-502).
-# These formats are deprecated and will be removed in etlpipe 2.0.
-_PICKLE_DEPRECATION_MSG = (
-    "Pickle format support is deprecated due to arbitrary code execution risk "
-    "(CWE-502). It will be removed in etlpipe 2.0. "
-    "Use Parquet or Feather format instead."
-)
+# Pickle support has been permanently removed. Use Parquet or Feather format instead.
+class PickleRemovedError(ValueError):
+    """Raised when a pickle file path is used.
+
+    Pickle deserialization allows arbitrary code execution (CWE-502) and has
+    been permanently removed from etlpipe for banking/enterprise compliance.
+    Migrate to Parquet (``.parquet``) or Feather (``.feather``) format.
+    """
+
+    def __init__(self, path: str) -> None:
+        super().__init__(
+            f"Pickle format is permanently disabled for security (CWE-502): '{path}'. "
+            "Migrate to Parquet or Feather format: "
+            "InOut.output_data(df, 'file.parquet') / InOut.input_data('file.parquet')"
+        )
 
 
 # Mapping from file extension to pandas reader / writer pairs.
@@ -33,8 +42,6 @@ _READERS: dict[str, str] = {
     ".json": "read_json",
     ".parquet": "read_parquet",
     ".feather": "read_feather",
-    ".pkl": "read_pickle",
-    ".pickle": "read_pickle",
     ".html": "read_html",
     ".sas7bdat": "read_sas",
     ".xpt": "read_sas",
@@ -50,11 +57,12 @@ _WRITERS: dict[str, str] = {
     ".json": "to_json",
     ".parquet": "to_parquet",
     ".feather": "to_feather",
-    ".pkl": "to_pickle",
-    ".pickle": "to_pickle",
     ".html": "to_html",
     ".dta": "to_stata",
 }
+
+# Blocked formats — any path matching these extensions raises PickleRemovedError
+_BLOCKED_EXTENSIONS: frozenset[str] = frozenset({".pkl", ".pickle"})
 
 
 class InOut:
@@ -90,8 +98,8 @@ class InOut:
             >>> df = InOut.input_data("report.xlsx", sheet_name="Q1")
         """
         ext = Path(str(path)).suffix.lower()
-        if ext in (".pkl", ".pickle"):
-            warnings.warn(_PICKLE_DEPRECATION_MSG, DeprecationWarning, stacklevel=2)
+        if ext in _BLOCKED_EXTENSIONS:
+            raise PickleRemovedError(str(path))
         from etlpipe._config import get_engine
 
         return get_engine().input_data(path, **kwargs)
@@ -120,8 +128,8 @@ class InOut:
             >>> InOut.output_data(df, "report.xlsx", index=False)
         """
         ext = Path(str(path)).suffix.lower()
-        if ext in (".pkl", ".pickle"):
-            warnings.warn(_PICKLE_DEPRECATION_MSG, DeprecationWarning, stacklevel=2)
+        if ext in _BLOCKED_EXTENSIONS:
+            raise PickleRemovedError(str(path))
         from etlpipe._config import get_engine
 
         return get_engine().output_data(df, path, **kwargs)

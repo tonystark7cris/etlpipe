@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] — 2026-09-07
+
+### Added — Bank / Big 4 Production Hardening (9-Component Security Overhaul)
+
+A comprehensive security hardening release qualifying `etlpipe` for deployment inside major financial institutions (JPMorgan, Bank of America, HSBC) and Big 4 consulting firms. All components are verified by 58 new tests in `tests/test_security.py`.
+
+- **`etlpipe._secrets`** — New secrets resolution module. `${ENV_VAR}` and `${env:VAR}` tokens in pipeline YAML are resolved at load time. `SecretResolutionError` raised on any unresolved token. Works with AWS Secrets Manager, Azure Key Vault, HashiCorp Vault (inject secrets as environment variables). `has_unresolved_tokens()` utility for pre-flight validation.
+- **`etlpipe._rbac`** — New RBAC pipeline guard module. `PipelineGuard` (plug in any IAM/LDAP callable), `EnvRoleGuard` (Kubernetes service account-compatible), `AllowAllGuard` (backward-compatible default). `AccessDeniedError` raised on denial — guard failures are fail-closed, not fail-open. Wire up via `Pipeline.run(..., guard=guard)`.
+- **`etlpipe._lineage`** — New OpenLineage data lineage collector. `LineageCollector` records per-step I/O schemas, row counts, and durations. `to_openlineage_events()` produces OpenLineage-compatible `RunEvent` dicts. `emit_to_marquez(url)` pushes to a Marquez lineage server. Satisfies BCBS 239 Risk Data Aggregation requirements. Wire up via `Pipeline.run(..., lineage_collector=collector)`.
+- **`InsecureURLError` / `SecurityWarning`** in `PandasEngine` — `Developer.download()` now raises `InsecureURLError` for any `http://` URL by default. SSL certificate verification is always enabled via `ssl.create_default_context()`. Pass `allow_http=True` (emits `SecurityWarning`) for internal dev endpoints only.
+- **Bank-grade PII patterns** in `etlpipe_governance.pii` — 8 new banking-sector PII types added to `scan_pii()` / `mask_pii()`:
+  `routing_number`, `account_number`, `swift_bic`, `pan_masked`, `sort_code`, `bsb_number`, `tax_id_ein`, `internal_cust_id`.
+  Total pattern count: **20** (12 original international + 8 banking). Covers GDPR, HIPAA, SOX, CCPA, PCI-DSS.
+- **Pluggable SIEM audit forwarders** in `etlpipe_governance.audit` — New `AuditForwarder` base class with three built-in implementations:
+  - `SplunkHECForwarder` — Splunk HTTP Event Collector (zero extra dependencies, uses stdlib `urllib`)
+  - `WebhookForwarder` — Microsoft Teams, Slack, PagerDuty (any HTTP webhook)
+  - `S3Forwarder` — AWS S3 JSONL upload (requires `etlpipe[cloud]`)
+  Register via `AuditTrail(forwarders=[...])`. Forwarder failures log as errors but never interrupt pipeline or local log writes.
+- **Encrypted pseudonymise mapping storage** in `etlpipe_governance.pii` — New `save_mapping()` and `load_mapping()` functions. With `encrypt_key`, uses AES-256-GCM + PBKDF2-HMAC-SHA256 (480,000 iterations, NIST SP 800-132 compliant) via the `cryptography` library. `MappingSecurityWarning` emitted if stored without encryption.
+- **`tests/test_security.py`** — 58 new security tests across 9 test classes with full mock-based isolation (no real network calls).
+
+### Changed
+
+- **`Pipeline.execute()`** now runs secrets resolution, RBAC check, and lineage recording automatically when configured. Backwards compatible — all new parameters are optional and default to the previous behaviour.
+- **`AuditTrail.__init__()`** gains `forwarders: list[AuditForwarder] | None = None` parameter. Backward compatible.
+- **`Developer.download()` signature** gains `allow_http: bool = False` parameter. Default behaviour changes: HTTP is now **rejected** (was silently allowed). HTTPS connections now verify SSL certificates.
+
+### Security (Breaking Changes)
+
+> [!IMPORTANT]
+> **`InOut.input_data()` and `InOut.output_data()` now raise `PickleRemovedError` for `.pkl` / `.pickle` files.**
+> This replaces the previous `DeprecationWarning`. There is no opt-out. Migrate to Parquet or Feather.
+>
+> ```python
+> # Before (broken in 2.2.0):
+> InOut.output_data(df, "output.pkl")
+>
+> # After:
+> InOut.output_data(df, "output.parquet")
+> df = InOut.input_data("output.parquet")
+> ```
+
+> [!IMPORTANT]
+> **`Developer.download()` now rejects `http://` URLs by default.**
+> Calls using plain HTTP will raise `InsecureURLError`. Update all URLs to use `https://`.
+
 ## [2.1.0] — 2026-08-01
 
 ### Added (`etlpipe-governance` v0.2.0)

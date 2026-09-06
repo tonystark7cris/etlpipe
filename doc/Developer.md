@@ -68,33 +68,64 @@ Perfectly rounds-trips encoded files back without data loss.
 ---
 
 ## Function: `download`
-**Description**: Invokes external web protocols to scrape or consume API data from online nodes into tabular structures.
+**Description**: Invokes external web protocols to consume API data from online endpoints into tabular structures.
+
+> **Security (v2.2.0)**: `download()` enforces HTTPS by default. Passing an `http://` URL raises `InsecureURLError` to protect data in transit from man-in-the-middle attacks. SSL certificates are verified using `ssl.create_default_context()`. This is mandatory in production financial environments.
 
 ### Signature
-`def download(url: str, params: dict[str, Any] | None = None, output_column: str = "DownloadData") -> pd.DataFrame`
+`def download(url: str, params: dict[str, Any] | None = None, output_column: str = "DownloadData", max_retries: int = 3, retry_delay: float = 1.0, allow_http: bool = False) -> pd.DataFrame`
 
 ### Parameters (Inputs)
 * **url** | **str** | **Required** | **None**
-  * **Description**: Address routing endpoint string.
+  * **Description**: The HTTPS endpoint URL. Plain `http://` URLs are **rejected** by default (raises `InsecureURLError`).
 * **params** | **dict[str, Any] | None** | **Optional** | **None**
-  * **Description**: Query parameters serialized to end of HTTP request.
+  * **Description**: Query parameters serialized to the end of the HTTP request URL.
 * **output_column** | **str** | **Optional** | **"DownloadData"**
-  * **Description**: Column wrapping resulting string text or deeply-structured JSON elements.
+  * **Description**: Column name for the resulting text/JSON payload when the response cannot be parsed as structured JSON.
+* **max_retries** | **int** | **Optional** | **3**
+  * **Description**: Maximum number of retry attempts on transient failures (`URLError`, `TimeoutError`, HTTP 5xx). Uses exponential backoff.
+* **retry_delay** | **float** | **Optional** | **1.0**
+  * **Description**: Base delay in seconds between retry attempts. Actual delay is `retry_delay * 2^(attempt-1)`.
+* **allow_http** | **bool** | **Optional** | **False**
+  * **Description**: If `True`, allows plain HTTP connections. A `SecurityWarning` is always emitted. **Never set this to `True` in production.** Intended only for isolated internal development endpoints.
 
 ### Returns (Outputs)
 * **Type**: `pd.DataFrame`
-* **Description**: Single-record data table containing web data blob.
+* **Description**: If the response body is a JSON array, returns a multi-row DataFrame. If a JSON object, returns a single-row DataFrame. Otherwise, wraps the raw body in the `output_column`.
 
 ### Exceptions & Errors
-None explicitly defined. Uses basic `urllib`.
+* `InsecureURLError` (`ValueError`): Raised when an `http://` URL is provided and `allow_http=False` (the default).
+* `urllib.error.URLError` / `OSError`: Re-raised after all retry attempts are exhausted.
 
 ### Behavior & Edge Cases
-Gracefully determines if returned API payload acts as JSON formatting and unpacks it if successful. Otherwise defaults to dumping raw bytes into the field. Avoids heavy `requests` module dependency.
+- SSL certificate verification is always enabled. To trust an internal CA, configure the SSL context externally.
+- Retries apply to transient errors only. `InsecureURLError` is raised immediately without retries.
+- JSON responses are automatically parsed into columns; non-JSON responses are stored as raw text.
 
 ### Usage Examples
-1. **Basic Usage**:
+1. **Standard HTTPS API call**:
    ```python
    df = Developer.download("https://api.example.com/data")
+   ```
+2. **With query parameters**:
+   ```python
+   df = Developer.download("https://api.example.com/rates", params={"date": "2026-08-17", "currency": "USD"})
+   ```
+3. **Internal dev endpoint (HTTP — development only)**:
+   ```python
+   import warnings
+   with warnings.catch_warnings():
+       warnings.simplefilter("ignore")  # Suppress SecurityWarning in test harness
+       df = Developer.download("http://localhost:8080/test", allow_http=True)
+   ```
+4. **Catching InsecureURLError**:
+   ```python
+   from etlpipe.engines.pandas_engine import InsecureURLError
+   try:
+       df = Developer.download("http://legacy-api.corp.internal/data")
+   except InsecureURLError as e:
+       print(f"Security violation blocked: {e}")
+       # Switch to HTTPS or use VPN tunnel
    ```
 
 ---

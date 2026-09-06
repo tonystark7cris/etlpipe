@@ -669,12 +669,13 @@ class TestSecurity:
         assert "safe_load" in source
         assert "yaml.load(" not in source or "yaml.safe_load" in source
 
-    def test_pickle_format_supported(self) -> None:
-        """Document that pickle is supported (potential RCE vector)."""
-        from etlpipe.in_out import _READERS
+    def test_pickle_format_blocked(self) -> None:
+        """Pickle is permanently blocked (CWE-502 fix — upgraded from deprecation to hard error)."""
+        from etlpipe.in_out import PickleRemovedError, _BLOCKED_EXTENSIONS
 
-        # This test documents the risk — pickle is currently supported
-        assert ".pkl" in _READERS or ".pickle" in _READERS
+        # .pkl and .pickle must be in the blocked set, not in _READERS
+        assert ".pkl" in _BLOCKED_EXTENSIONS
+        assert ".pickle" in _BLOCKED_EXTENSIONS
 
     def test_download_does_not_hang_on_bad_url(self) -> None:
         """Download should not hang indefinitely on unreachable URLs."""
@@ -700,13 +701,15 @@ class TestSecurity:
         finally:
             os.unlink(temp_path)
 
-    def test_pickle_emits_deprecation_warning(self, basic_df: pd.DataFrame, tmp_path: Path) -> None:
-        """Pickle I/O should emit a DeprecationWarning (CWE-502 mitigation)."""
+    def test_pickle_raises_error(self, basic_df: pd.DataFrame, tmp_path: Path) -> None:
+        """Pickle I/O now raises PickleRemovedError (CWE-502 — upgraded from DeprecationWarning)."""
+        from etlpipe.in_out import InOut, PickleRemovedError
+
         pkl_path = tmp_path / "test.pkl"
-        with pytest.warns(DeprecationWarning, match="Pickle format support is deprecated"):
+        with pytest.raises(PickleRemovedError, match="CWE-502"):
             InOut.output_data(basic_df, str(pkl_path))
-        with pytest.warns(DeprecationWarning, match="Pickle format support is deprecated"):
-            InOut.input_data(str(pkl_path))
+        with pytest.raises(PickleRemovedError, match="Parquet"):
+            InOut.input_data(str(tmp_path / "would_be.pkl"))
 
     def test_backend_engine_not_implemented(self) -> None:
         """BackendEngine base methods must raise NotImplementedError, not return None."""

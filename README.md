@@ -27,7 +27,8 @@ Etlpipe is the **Visual ETL Migration Accelerator**. It provides a 1:1 API mappi
 - **For Data Analysts:** Zero friction. Workflows translate 1:1 using familiar concepts (`Summarize`, `Join`, `Formula`) and visual anchors (`L, J, R` or `T, F` tuples).
 - **For Data Engineers & Consultants:** Automated CLI tool (`etlpipe-convert`) translates `.yxmd` XML workflows into executable Etlpipe YAML/Python pipelines automatically.
 - **Enterprise Scalability (Dual Backend):** Develop locally using **Pandas**, then switch backend to **PySpark** with one line (`etlpipe.set_backend("spark")`) to scale across distributed clusters without altering business logic.
-- **Standalone Data Governance:** Integrated or modular data quality via `etlpipe-governance` (PII scanning/masking, schema contracts with value-level rules, volume & freshness checks, YAML schemas, audit trails, and HTML reporting).
+- **Standalone Data Governance:** Integrated or modular data quality via `etlpipe-governance` (PII scanning/masking with 20 patterns, schema contracts, volume & freshness checks, YAML schemas, audit trails, HTML reporting).
+- **Bank & Enterprise Security (v2.2.0):** 9-component security hardening — pickle permanently removed (CWE-502), HTTPS enforcement, secrets management, RBAC pipeline guards, OpenLineage data lineage (BCBS 239), SIEM audit forwarding (Splunk/Teams/S3), and AES-256-GCM encrypted PII mapping storage. See [`SECURITY.md`](SECURITY.md).
 
 ---
 
@@ -108,9 +109,9 @@ Below is a detailed breakdown of every tool available in Etlpipe, complete with 
 
 ### 🔌 InOut Palette
 
-- **`InOut.input_data(path: str)`**: Reads data from CSV, Excel, JSON, or Parquet. Auto-detects format.
+- **`InOut.input_data(path: str)`**: Reads data from CSV, Excel, JSON, or Parquet. Auto-detects format. **Note: `.pkl`/`.pickle` files raise `PickleRemovedError` (CWE-502 — permanently blocked).**
   *Usage*: `df = InOut.input_data("data.csv")`
-- **`InOut.output_data(df, path: str)`**: Writes a DataFrame to a specified file format.
+- **`InOut.output_data(df, path: str)`**: Writes a DataFrame to a specified file format. **Note: `.pkl`/`.pickle` destinations raise `PickleRemovedError`. Use Parquet instead.**
   *Usage*: `InOut.output_data(df, "output.parquet")`
 - **`InOut.text_input(data: list|dict)`**: Creates a DataFrame from inline dictionaries or lists.
   *Usage*: `df = InOut.text_input([{"id": 1, "val": "A"}, {"id": 2, "val": "B"}])`
@@ -377,11 +378,13 @@ converter.save("my_pipeline.yaml")
 Etlpipe comes with enterprise-grade data quality, PII detection, masking, and schema contract tools built-in (also available as the standalone package `etlpipe-governance`).
 
 ### 1. PII Detection & Compliance Masking (`scan_pii` / `mask_pii`)
-Detect Personally Identifiable Information across 12 international pattern types (email, phone, SSN, credit card, Aadhaar, IBAN, passport, IP address) and apply masking strategies:
+Detect Personally Identifiable Information across **20 pattern types** — 12 international patterns plus 8 banking-sector extensions (routing numbers, account numbers, SWIFT/BIC codes, masked PANs, UK sort codes, Australian BSB codes, EINs, and internal CIF identifiers). Covers GDPR, HIPAA, SOX, CCPA, and PCI-DSS.
 
 ```python
 from etlpipe import scan_pii
 from etlpipe_governance import mask_pii
+from etlpipe_governance.pii import save_mapping
+import os
 
 # 1. Scan for PII
 report = scan_pii(df)
@@ -391,6 +394,9 @@ print(report[["Column", "PII_Type", "Confidence"]])
 safe_df = mask_pii(df, report, strategy="redact")                  # Replaces with "***REDACTED***"
 hashed_df = mask_pii(df, report, strategy="hash")                  # Replaces with SHA-256 tokens
 pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise") # Replaces with labels (e.g. EMAIL_1)
+
+# 3. Store the pseudonymise mapping securely (AES-256-GCM encrypted)
+save_mapping(mapping, "mappings/daily.enc", encrypt_key=os.environ["MAPPING_KEY"])
 ```
 
 ### 2. Schema Contracts with Value-Level Rules (`expect_schema` / `infer_schema`)
@@ -432,17 +438,25 @@ expect_schema(df, schema)
 ```
 
 ### 5. Audit Suites, Trail & Reporting
-Execute batch audits with volume/freshness checks, persist results, and export HTML reports:
+Execute batch audits with volume/freshness checks, persist results, export HTML reports, and stream to your SIEM:
 
 ```python
 from etlpipe_governance import ContractSuite, AuditTrail, export_report, profile
+from etlpipe_governance.audit import SplunkHECForwarder
 from datetime import timedelta
+import os
 
 # Profile column metrics
 profile_df = profile(df)
 
+# Configure SIEM forwarder (Splunk, Teams, S3 — all supported)
+splunk = SplunkHECForwarder(
+    url="https://splunk.bank.internal:8088/services/collector/event",
+    token=os.environ["SPLUNK_HEC_TOKEN"],
+)
+
 # Execute batch audit suite with volume and freshness gates
-trail = AuditTrail("./governance_logs")
+trail = AuditTrail("./governance_logs", forwarders=[splunk])  # Streams to Splunk + local JSONL
 suite = ContractSuite("ETL Pipeline Ingestion Audit")
 suite.add_contract("raw_sales", raw_schema, strict=True)
 suite.add_contract("cleaned_sales", cleaned_schema, strict=False)
@@ -459,6 +473,88 @@ audit_report = suite.run(
 export_report(audit_report, "reports/audit.html")
 print(audit_report[["Contract", "Status", "Violation_Count"]])
 ```
+
+---
+
+## 🏦 Bank & Enterprise Security (v2.2.0)
+
+Etlpipe v2.2.0 ships a 9-component security overhaul qualifying it for deployment inside major financial institutions (JPMorgan, Bank of America, HSBC) and Big 4 firms. All controls are tested by `tests/test_security.py`.
+
+### Secrets Management
+Use `${ENV_VAR}` tokens in pipeline YAML — credentials are **never** stored in files:
+```yaml
+# pipeline.yaml
+steps:
+  - id: load_customers
+    tool: InOut.input_data
+    args:
+      path: "${DATA_PATH}"
+      connection_string: "${env:DB_CONN_STRING}"
+```
+```python
+# Tokens resolved automatically at Pipeline.run() — raises SecretResolutionError if any are missing
+Pipeline.run("pipeline.yaml")
+```
+
+### RBAC Pipeline Guard
+Plug in your bank's IAM or LDAP service:
+```python
+from etlpipe._rbac import PipelineGuard, EnvRoleGuard
+import os
+
+# Option 1: Custom IAM callable (plug in Active Directory, Okta, etc.)
+guard = PipelineGuard(role_checker=lambda pipeline, action: my_iam.check(pipeline, action))
+
+# Option 2: Environment variable-based roles (works with Kubernetes service accounts)
+guard = EnvRoleGuard(
+    allowed_roles_env="ETLPIPE_ALLOWED_ROLES",  # e.g. "data_engineer,data_analyst"
+    user_role_env="ETLPIPE_USER_ROLE",
+)
+
+Pipeline.run("pipeline.yaml", guard=guard)  # Raises AccessDeniedError if denied
+```
+
+### Data Lineage (BCBS 239 / OpenLineage)
+Record per-step I/O for regulatory data lineage requirements:
+```python
+from etlpipe._lineage import LineageCollector
+
+collector = LineageCollector(namespace="prod.data-engineering", job_prefix="bank")
+Pipeline.run("pipeline.yaml", lineage_collector=collector)
+
+# Push to Marquez or Apache Atlas
+collector.emit_to_marquez("http://marquez.internal:5000")
+
+# Or export as OpenLineage events for custom integration
+events = collector.to_openlineage_events()
+```
+
+### HTTPS Enforcement
+`Developer.download()` rejects HTTP by default — update all URLs to HTTPS:
+```python
+# This now raises InsecureURLError:
+# df = Developer.download("http://api.example.com/data")  # ❌
+
+# Use HTTPS:
+df = Developer.download("https://api.example.com/data")  # ✅
+```
+
+### Encrypted PII Mapping Storage
+Store pseudonymisation mappings encrypted at rest:
+```python
+from etlpipe_governance.pii import save_mapping, load_mapping
+import os
+
+pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise")
+
+# Encrypt with AES-256-GCM (key from your bank's secret manager)
+save_mapping(mapping, "mappings/2026-09-07.enc", encrypt_key=os.environ["MAPPING_KEY"])
+
+# Restore later
+mapping = load_mapping("mappings/2026-09-07.enc", encrypt_key=os.environ["MAPPING_KEY"])
+```
+
+See [`SECURITY.md`](SECURITY.md) for the full security policy and [ADR 004](doc/adr/004-bank-production-hardening.md) for architectural rationale.
 
 ---
 

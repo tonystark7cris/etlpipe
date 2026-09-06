@@ -18,6 +18,8 @@ from typing import Any
 import pandas as pd
 import yaml
 
+from etlpipe._secrets import resolve_secrets
+
 logger = logging.getLogger("etlpipe.pipeline")
 
 
@@ -39,6 +41,8 @@ class Pipeline:
         on_step_complete: Callable[[str, str, dict], None] | None = None,
         on_step_error: Callable[[str, str, Exception], None] | None = None,
         on_pipeline_complete: Callable[[str, list[dict]], None] | None = None,
+        guard: Any | None = None,
+        lineage_collector: Any | None = None,
     ):
         """Initialize the pipeline with a path to a YAML configuration file.
 
@@ -52,10 +56,20 @@ class Pipeline:
                 invoked when a step raises an exception.
             on_pipeline_complete: Optional callback ``(pipeline_name, all_metrics) -> None``
                 invoked after the entire pipeline finishes successfully.
+            guard: Optional :class:`etlpipe._rbac.PipelineGuard` instance.
+                When provided, ``guard.check(pipeline_name)`` is called before
+                any step executes. Raises :class:`~etlpipe._rbac.AccessDeniedError`
+                if the check fails. Defaults to ``None`` (allow all).
+            lineage_collector: Optional :class:`etlpipe._lineage.LineageCollector`
+                instance. When provided, lineage is recorded after each step
+                and can be exported as OpenLineage events or pushed to Marquez.
         """
         self.config_path = Path(config_path)
         with self.config_path.open("r", encoding="utf-8") as f:
-            self.config = yaml.safe_load(f)
+            raw_config = yaml.safe_load(f)
+
+        # Resolve ${ENV_VAR} secret tokens before any step sees the config
+        self.config = resolve_secrets(raw_config)
 
         self.name = self.config.get("name", "Unnamed Pipeline")
         self.backend_name = self.config.get("backend", None)
@@ -68,6 +82,12 @@ class Pipeline:
         self._on_step_complete = on_step_complete
         self._on_step_error = on_step_error
         self._on_pipeline_complete = on_pipeline_complete
+
+        # Security and observability
+        self._guard = guard
+        self._lineage = lineage_collector
+        if self._lineage is not None:
+            self._lineage.set_pipeline(self.name)
 
     def _resolve_input(self, ref: str) -> Any:
         """Resolve an input reference string to a DataFrame from state.
@@ -167,12 +187,17 @@ class Pipeline:
         """Run all steps in the pipeline sequentially.
 
         Populates ``self.metrics`` with per-step execution data. Invokes
-        registered event hooks at each lifecycle point.
+        registered event hooks at each lifecycle point. Applies RBAC guard
+        and secrets resolution before any step runs.
         """
         pipeline_start = time.perf_counter()
         self.metrics = []
 
         logger.info("Starting pipeline: '%s' (%d steps)", self.name, len(self.steps))
+
+        # RBAC check — must pass before any step executes
+        if self._guard is not None:
+            self._guard.check(self.name)
 
         if self.backend_name:
             from etlpipe._config import set_backend
@@ -217,6 +242,7 @@ class Pipeline:
                 # 6. Validate schema contract if provided
                 self._validate_step_schema(step, step_id, result)
 
+
             except Exception as e:
                 duration = time.perf_counter() - step_start
                 step_metric = {
@@ -259,6 +285,23 @@ class Pipeline:
             if self._on_step_complete:
                 self._on_step_complete(step_id, tool_name, step_metric)
 
+            # 8. Record lineage if collector is configured (after step_metric is built)
+            if self._lineage is not None:
+                resolved_schema: dict[str, Any] = {}
+                if isinstance(result, pd.DataFrame):
+                    resolved_schema = {col: str(result[col].dtype) for col in result.columns}
+                elif isinstance(result, tuple):
+                    df0 = next((r for r in result if isinstance(r, pd.DataFrame)), None)
+                    if df0 is not None:
+                        resolved_schema = {col: str(df0[col].dtype) for col in df0.columns}
+                self._lineage.record_step(
+                    step_id=step_id,
+                    tool=tool_name,
+                    inputs=list(inputs.values()) if inputs else [],
+                    output_schema=resolved_schema,
+                    row_count=step_metric.get("output_rows"),
+                    duration_s=step_metric.get("duration_s"),
+                )
         # Pipeline summary
         total_duration = time.perf_counter() - pipeline_start
         summary = {
@@ -282,7 +325,9 @@ class Pipeline:
         on_step_complete: Callable[[str, str, dict], None] | None = None,
         on_step_error: Callable[[str, str, Exception], None] | None = None,
         on_pipeline_complete: Callable[[str, list[dict]], None] | None = None,
-    ) -> Pipeline:
+        guard: Any | None = None,
+        lineage_collector: Any | None = None,
+    ) -> "Pipeline":
         """Convenience method to load and execute a pipeline.
 
         Returns:
@@ -294,6 +339,8 @@ class Pipeline:
             on_step_complete=on_step_complete,
             on_step_error=on_step_error,
             on_pipeline_complete=on_pipeline_complete,
+            guard=guard,
+            lineage_collector=lineage_collector,
         )
         pipeline.execute()
         return pipeline

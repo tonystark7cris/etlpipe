@@ -2,7 +2,8 @@
 
 Provides automated detection of columns that may contain sensitive
 personal data — a critical requirement for GDPR, HIPAA, SOX, CCPA,
-and other regulatory compliance frameworks used in enterprise deployments.
+PCI-DSS, and other regulatory compliance frameworks used in enterprise
+financial deployments.
 
 Two-step workflow::
 
@@ -14,7 +15,11 @@ Two-step workflow::
     # Step 2: mask before persisting / sharing
     safe_df = mask_pii(df, report, strategy="redact")
     hashed_df = mask_pii(df, report, strategy="hash")
-    pseudo_df = mask_pii(df, report, strategy="pseudonymise")
+    pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise")
+
+    # Step 3 (pseudonymise only): store mapping securely
+    from etlpipe_governance.pii import save_mapping, load_mapping
+    save_mapping(mapping, "mappings/daily.enc", encrypt_key=os.environ["MAPPING_KEY"])
 
 Masking strategies
 ------------------
@@ -32,13 +37,16 @@ Masking strategies
     Replaces each *unique* value with a type-prefixed label such as
     ``PERSON_1``, ``EMAIL_1``, ``PHONE_2``.  The mapping is
     deterministic within a single call and returned as a second value.
-    Suitable for synthetic data generation and ML training sets.
+    The caller is responsible for storing the mapping securely —
+    use :func:`save_mapping` with ``encrypt_key`` for AES-256 storage.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
+import os
 import re
 import warnings
 from typing import Any
@@ -56,6 +64,7 @@ class PIIWarning(UserWarning):
 # Default PII detection patterns (international coverage)
 # ---------------------------------------------------------------------------
 _DEFAULT_PATTERNS: dict[str, dict[str, Any]] = {
+    # ---- General personal data ----
     "email": {
         "value_regex": r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}",
         "name_regex": r"(?i)(e[\-_]?mail|email[\-_]?addr)",
@@ -122,6 +131,53 @@ _DEFAULT_PATTERNS: dict[str, dict[str, Any]] = {
         ),
         "description": "Physical address",
     },
+    # ---- Banking & financial sector patterns (JPMorgan / BoA / Big 4 grade) ----
+    "routing_number": {
+        "value_regex": r"\b0[0-9]{2}[0-9]{6}\b|\b[123678][0-9]{7}\b",  # 9-digit ABA format
+        "name_regex": r"(?i)(routing[\-_\s]?num|aba[\-_\s]?routing|rtn|transit[\-_\s]?num)",
+        "description": "US ABA bank routing number",
+    },
+    "account_number": {
+        "value_regex": r"\b\d{6,17}\b",  # 6–17 digit bank account number
+        "name_regex": (
+            r"(?i)(acct[\-_\s]?num|account[\-_\s]?number|bank[\-_\s]?account|"
+            r"deposit[\-_\s]?acct|checking[\-_\s]?acct|savings[\-_\s]?acct)"
+        ),
+        "description": "Bank account number",
+    },
+    "swift_bic": {
+        "value_regex": r"\b[A-Z]{4}[A-Z]{2}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3})?\b",
+        "name_regex": r"(?i)(swift|bic[\-_\s]?code|swift[\-_\s]?code|bank[\-_\s]?id[\-_\s]?code)",
+        "description": "SWIFT/BIC bank identifier code",
+    },
+    "pan_masked": {
+        "value_regex": r"\b[*Xx\d]{4}[\-\s]?[*Xx\d]{4}[\-\s]?[*Xx\d]{4}[\-\s]?\d{4}\b",
+        "name_regex": r"(?i)(masked[\-_\s]?pan|pan[\-_\s]?mask|card[\-_\s]?mask|last[\-_\s]?4)",
+        "description": "Masked payment card number (PCI-DSS)",
+    },
+    "sort_code": {
+        "value_regex": r"\b\d{2}[\-]\d{2}[\-]\d{2}\b",
+        "name_regex": r"(?i)(sort[\-_\s]?code|sort[\-_\s]?num|uk[\-_\s]?sort)",
+        "description": "UK bank sort code",
+    },
+    "bsb_number": {
+        "value_regex": r"\b\d{3}[\-]\d{3}\b",
+        "name_regex": r"(?i)(bsb[\-_\s]?num|bsb[\-_\s]?code|au[\-_\s]?bsb)",
+        "description": "Australian BSB (Bank State Branch) code",
+    },
+    "tax_id_ein": {
+        "value_regex": r"\b\d{2}[\-]\d{7}\b",
+        "name_regex": r"(?i)(ein|employer[\-_\s]?id|tax[\-_\s]?id[\-_\s]?num|tin[\-_\s]?num|federal[\-_\s]?tax)",
+        "description": "US Employer Identification Number (EIN/TIN)",
+    },
+    "internal_cust_id": {
+        "value_regex": None,  # Pattern too institution-specific for value regex
+        "name_regex": (
+            r"(?i)(cust[\-_\s]?id|customer[\-_\s]?id|client[\-_\s]?id|"
+            r"cif[\-_\s]?num|party[\-_\s]?id|member[\-_\s]?id|account[\-_\s]?holder[\-_\s]?id)"
+        ),
+        "description": "Internal customer / CIF identifier",
+    },
 }
 
 # Prefix labels used by the pseudonymise strategy, keyed by PII type
@@ -138,6 +194,15 @@ _PSEUDO_LABELS: dict[str, str] = {
     "passport": "PASSPORT",
     "name_field": "PERSON",
     "address": "ADDRESS",
+    # Banking extensions
+    "routing_number": "ROUTING",
+    "account_number": "ACCOUNT",
+    "swift_bic": "SWIFT",
+    "pan_masked": "PAN",
+    "sort_code": "SORT",
+    "bsb_number": "BSB",
+    "tax_id_ein": "EIN",
+    "internal_cust_id": "CUST",
 }
 
 
@@ -396,3 +461,163 @@ def mask_pii(
 def _sha256_token(value: str, length: int = 12) -> str:
     """Return the first *length* hex chars of the SHA-256 digest of *value*."""
     return hashlib.sha256(value.encode("utf-8", errors="replace")).hexdigest()[:length]
+
+
+# ---------------------------------------------------------------------------
+# Secure pseudonymise mapping storage (Component 8)
+# ---------------------------------------------------------------------------
+
+
+class MappingSecurityWarning(UserWarning):
+    """Warning emitted when a pseudonymise mapping is stored without encryption."""
+
+
+def save_mapping(
+    mapping: dict[str, dict[str, str]],
+    path: str,
+    *,
+    encrypt_key: str | None = None,
+) -> None:
+    """Persist a pseudonymise mapping to disk, optionally with AES-256-GCM encryption.
+
+    The mapping returned by :func:`mask_pii` with ``strategy="pseudonymise"``
+    contains original PII values as dict keys and **must be stored securely**.
+    Use ``encrypt_key`` to encrypt it at rest using AES-256-GCM via the
+    ``cryptography`` library.
+
+    Args:
+        mapping: The mapping dict returned by ``mask_pii(..., strategy="pseudonymise")``.
+        path: File path to write the mapping to. The directory is created
+            automatically if it does not exist.
+        encrypt_key: A secret key string used to derive an AES-256 key via
+            PBKDF2-HMAC-SHA256 (480,000 iterations, NIST-recommended). Store
+            this key in your bank's secret manager (AWS Secrets Manager, Azure
+            Key Vault, HashiCorp Vault) -- never on disk. If ``None``, the
+            mapping is written as plain JSON and a :class:`MappingSecurityWarning`
+            is emitted.
+
+    Raises:
+        ImportError: If ``encrypt_key`` is provided but the ``cryptography``
+            package is not installed (``pip install cryptography``).
+
+    Example::
+
+        >>> key = os.environ["MAPPING_ENCRYPTION_KEY"]
+        >>> pseudo_df, mapping = mask_pii(df, report, strategy="pseudonymise")
+        >>> save_mapping(mapping, "mappings/2026-08-17.enc", encrypt_key=key)
+    """
+    import pathlib
+
+    dest = pathlib.Path(path)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(mapping, ensure_ascii=False)
+
+    if encrypt_key is None:
+        warnings.warn(
+            "save_mapping: mapping is being stored as PLAIN TEXT (no encrypt_key provided). "
+            "Pseudonymise mappings contain original PII values and must be encrypted at rest. "
+            "Pass encrypt_key=os.environ['MAPPING_KEY'] to enable AES-256-GCM encryption.",
+            MappingSecurityWarning,
+            stacklevel=2,
+        )
+        dest.write_text(payload, encoding="utf-8")
+        logger.warning("Pseudonymise mapping saved WITHOUT encryption to %s", dest)
+        return
+
+    try:
+        import base64
+
+        from cryptography.hazmat.primitives import hashes as crypto_hashes
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+    except ImportError as exc:
+        raise ImportError(
+            "The 'cryptography' package is required for encrypted mapping storage. "
+            "Install it with: pip install cryptography"
+        ) from exc
+
+    salt = os.urandom(16)
+    kdf = PBKDF2HMAC(
+        algorithm=crypto_hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=480_000,
+    )
+    key_bytes = kdf.derive(encrypt_key.encode("utf-8"))
+    nonce = os.urandom(12)
+    aesgcm = AESGCM(key_bytes)
+    ciphertext = aesgcm.encrypt(nonce, payload.encode("utf-8"), None)
+
+    blob = base64.b64encode(salt + nonce + ciphertext).decode("ascii")
+    dest.write_text(blob, encoding="ascii")
+    logger.info("Pseudonymise mapping saved with AES-256-GCM encryption to %s", dest)
+
+
+def load_mapping(
+    path: str,
+    *,
+    encrypt_key: str | None = None,
+) -> dict[str, dict[str, str]]:
+    """Load a pseudonymise mapping previously saved with :func:`save_mapping`.
+
+    Args:
+        path: Path to the mapping file.
+        encrypt_key: The same key used when calling :func:`save_mapping`.
+            Required if the file was encrypted; omit for plain-text files.
+
+    Returns:
+        The original mapping dict ``{column: {original_value: pseudo_label}}``.
+
+    Raises:
+        FileNotFoundError: If *path* does not exist.
+        ImportError: If ``encrypt_key`` is provided but ``cryptography`` is not installed.
+        ValueError: If decryption fails (wrong key or corrupted file).
+
+    Example::
+
+        >>> key = os.environ["MAPPING_ENCRYPTION_KEY"]
+        >>> mapping = load_mapping("mappings/2026-08-17.enc", encrypt_key=key)
+    """
+    import pathlib
+
+    src = pathlib.Path(path)
+    if not src.exists():
+        raise FileNotFoundError(f"Mapping file not found: {src}")
+
+    content = src.read_text(encoding="utf-8" if encrypt_key is None else "ascii").strip()
+
+    if encrypt_key is None:
+        return json.loads(content)
+
+    try:
+        import base64
+
+        from cryptography.hazmat.primitives import hashes as crypto_hashes
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+    except ImportError as exc:
+        raise ImportError(
+            "The 'cryptography' package is required for encrypted mapping loading. "
+            "Install it with: pip install cryptography"
+        ) from exc
+
+    raw = base64.b64decode(content)
+    salt, nonce, ciphertext = raw[:16], raw[16:28], raw[28:]
+    kdf = PBKDF2HMAC(
+        algorithm=crypto_hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=480_000,
+    )
+    key_bytes = kdf.derive(encrypt_key.encode("utf-8"))
+    aesgcm = AESGCM(key_bytes)
+    try:
+        plaintext = aesgcm.decrypt(nonce, ciphertext, None)
+    except Exception as exc:
+        raise ValueError(
+            "Mapping decryption failed -- wrong key or corrupted file. "
+            "Ensure you are using the same encrypt_key that was used to save the mapping."
+        ) from exc
+
+    logger.info("Pseudonymise mapping loaded and decrypted from %s", src)
+    return json.loads(plaintext.decode("utf-8"))

@@ -28,6 +28,25 @@ from etlpipe.engines.base import BackendEngine
 logger = logging.getLogger("etlpipe.engines.pandas")
 
 
+class InsecureURLError(ValueError):
+    """Raised when a non-HTTPS URL is used in :meth:`PandasEngine.download`.
+
+    Connects over plain HTTP expose data in transit to interception.
+    Use HTTPS. Pass ``allow_http=True`` only for internal/development
+    endpoints, and only if you understand the risk.
+    """
+
+    def __init__(self, url: str, hint: str = "") -> None:
+        hint_suffix = f" {hint}" if hint else ""
+        super().__init__(
+            f"Insecure URL rejected: '{url}' uses HTTP, not HTTPS.{hint_suffix}"
+        )
+
+
+class SecurityWarning(UserWarning):
+    """Warning emitted when a security-sensitive operation is used in a degraded mode."""
+
+
 class PandasEngine(BackendEngine):
     """Concrete backend engine executing operations using standard Pandas."""
 
@@ -1472,16 +1491,39 @@ class PandasEngine(BackendEngine):
         output_column: str = "DownloadData",
         max_retries: int = 3,
         retry_delay: float = 1.0,
+        allow_http: bool = False,
     ) -> pd.DataFrame:
+        import ssl
         import time
+        import warnings
+
+        # --- HTTPS enforcement (Component 4 — MITM protection) ---
+        parsed_scheme = url.split("://")[0].lower() if "://" in url else ""
+        if parsed_scheme == "http":
+            if not allow_http:
+                raise InsecureURLError(
+                    url,
+                    "Use HTTPS to protect data in transit. "
+                    "Pass allow_http=True only for internal/development endpoints.",
+                )
+            warnings.warn(
+                f"Developer.download: connecting over insecure HTTP to '{url}'. "
+                "This is not permitted in production. Use HTTPS.",
+                SecurityWarning,
+                stacklevel=3,
+            )
 
         if params:
             query_string = urllib.parse.urlencode(params)
             url = f"{url}?{query_string}"
 
+        # Use a secure SSL context (verifies certificates by default)
+        ssl_ctx = ssl.create_default_context()
+
         for attempt in range(1, max_retries + 1):
             try:
-                with urllib.request.urlopen(url, timeout=30) as response:  # noqa: S310 # nosec B310
+                req = urllib.request.Request(url)
+                with urllib.request.urlopen(req, timeout=30, context=ssl_ctx) as response:  # noqa: S310
                     status_code = response.getcode()
                     if status_code and status_code >= 500:
                         raise urllib.error.URLError(f"Server error: HTTP {status_code}")
