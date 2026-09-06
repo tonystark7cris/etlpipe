@@ -30,7 +30,7 @@
 
 ### What is Etlpipe?
 
-Etlpipe is a Python library that replicates every major **visual ETL tool palette** as clean, testable Python functions. Teams migrating from proprietary GUI ETL software (Alteryx, Dataiku, Informatica, SSIS) can adopt Etlpipe's familiar vocabulary — `Preparation.filter()`, `Join.join()`, `Transform.summarize()` — and immediately produce correct, production-grade pipelines without deep Pandas expertise.
+Etlpipe is a Python library that replicates every major **visual ETL tool palette** as clean, testable Python functions. Teams migrating from proprietary GUI ETL software can adopt Etlpipe's familiar vocabulary — `Preparation.filter()`, `Join.join()`, `Transform.summarize()` — and immediately produce correct, production-grade pipelines without deep Pandas expertise.
 
 ### Key Design Principles
 

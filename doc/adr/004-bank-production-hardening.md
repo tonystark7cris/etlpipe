@@ -3,7 +3,7 @@
 **Status**: Accepted  
 **Date**: 2026-08-17  
 **Deciders**: Nihal Tripathi (Maintainer)  
-**Context**: Deployment of `etlpipe` as a trusted data pipeline framework inside major financial institutions and Big 4 consulting firms, including use cases covering Alteryx-to-Python workflow migration and secure data handling.
+**Context**: Deployment of `etlpipe` as a trusted data pipeline framework inside major financial institutions and Big 4 consulting firms, including use cases covering Visual-ETL-Tool to Python workflow migration and secure data handling.
 
 ---
 
