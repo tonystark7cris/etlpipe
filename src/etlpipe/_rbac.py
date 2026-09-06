@@ -111,9 +111,7 @@ class PipelineGuard:
                 effective_action,
                 exc,
             )
-            raise AccessDeniedError(
-                pipeline_name, effective_action, reason=f"guard raised: {exc}"
-            ) from exc
+            raise AccessDeniedError(pipeline_name, effective_action, reason=f"guard raised: {exc}") from exc
 
         if not allowed:
             logger.warning(

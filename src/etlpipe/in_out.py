@@ -8,12 +8,12 @@ All methods are static — no hidden instance state.
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+
 
 # Security: Pickle deserialization is an arbitrary code execution vector (CWE-502).
 # Pickle support has been permanently removed. Use Parquet or Feather format instead.

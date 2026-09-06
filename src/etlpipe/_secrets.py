@@ -72,6 +72,7 @@ def _resolve_string(value: str, context: str = "") -> str:
     Raises:
         SecretResolutionError: If any referenced variable is absent.
     """
+
     def _replacer(match: re.Match) -> str:
         var_name = match.group(1)
         env_value = os.environ.get(var_name)

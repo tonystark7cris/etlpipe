@@ -38,7 +38,6 @@ from __future__ import annotations
 import abc
 import json
 import logging
-import os
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -141,7 +140,7 @@ class SplunkHECForwarder(AuditForwarder):
                 method="POST",
             )
             try:
-                with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+                with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # nosec B310
                     if resp.status >= 300:
                         logger.warning(
                             "SplunkHECForwarder: unexpected HTTP %d for record run_id=%s",
@@ -191,11 +190,9 @@ class WebhookForwarder(AuditForwarder):
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+            with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # nosec B310
                 if resp.status >= 300:
-                    logger.warning(
-                        "WebhookForwarder: unexpected HTTP %d from webhook", resp.status
-                    )
+                    logger.warning("WebhookForwarder: unexpected HTTP %d from webhook", resp.status)
         except urllib.error.URLError as exc:
             logger.error("WebhookForwarder: failed to send records: %s", exc)
 
@@ -207,7 +204,7 @@ class S3Forwarder(AuditForwarder):
 
     Args:
         bucket: S3 bucket name.
-        prefix: Key prefix for the audit log files (default ``"etlpipe/audit/"``).  
+        prefix: Key prefix for the audit log files (default ``"etlpipe/audit/"``).
             Records are written to ``{prefix}{run_id}.jsonl``.
         storage_options: Additional ``s3fs.S3FileSystem`` options
             (e.g. ``{"key": ..., "secret": ...}``).
@@ -235,9 +232,7 @@ class S3Forwarder(AuditForwarder):
         try:
             import s3fs
         except ImportError as exc:
-            raise ImportError(
-                "s3fs is required for S3Forwarder. Install with: pip install etlpipe[cloud]"
-            ) from exc
+            raise ImportError("s3fs is required for S3Forwarder. Install with: pip install etlpipe[cloud]") from exc
 
         run_id = records[0].get("run_id", datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")) if records else "empty"
         key = f"{self._prefix}/{run_id}.jsonl"

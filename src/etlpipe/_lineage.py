@@ -186,10 +186,7 @@ class LineageCollector:
                 output_facets["schema"] = {
                     "_producer": "etlpipe",
                     "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/SchemaDatasetFacet.json",
-                    "fields": [
-                        {"name": col, "type": dtype}
-                        for col, dtype in step["output_schema"].items()
-                    ],
+                    "fields": [{"name": col, "type": dtype} for col, dtype in step["output_schema"].items()],
                 }
             if step["row_count"] is not None:
                 output_facets["dataQualityMetrics"] = {
@@ -299,7 +296,7 @@ class LineageCollector:
                 method="POST",
             )
             try:
-                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
                     if resp.status < 300:
                         sent += 1
                         logger.debug(

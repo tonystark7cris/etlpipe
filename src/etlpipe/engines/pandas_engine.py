@@ -38,9 +38,7 @@ class InsecureURLError(ValueError):
 
     def __init__(self, url: str, hint: str = "") -> None:
         hint_suffix = f" {hint}" if hint else ""
-        super().__init__(
-            f"Insecure URL rejected: '{url}' uses HTTP, not HTTPS.{hint_suffix}"
-        )
+        super().__init__(f"Insecure URL rejected: '{url}' uses HTTP, not HTTPS.{hint_suffix}")
 
 
 class SecurityWarning(UserWarning):
@@ -1523,7 +1521,7 @@ class PandasEngine(BackendEngine):
         for attempt in range(1, max_retries + 1):
             try:
                 req = urllib.request.Request(url)
-                with urllib.request.urlopen(req, timeout=30, context=ssl_ctx) as response:  # noqa: S310
+                with urllib.request.urlopen(req, timeout=30, context=ssl_ctx) as response:  # noqa: S310  # nosec B310
                     status_code = response.getcode()
                     if status_code and status_code >= 500:
                         raise urllib.error.URLError(f"Server error: HTTP {status_code}")

@@ -16,18 +16,16 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
-import warnings
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
 
-
 # ===========================================================================
 # Component 1 — Pickle Removal (CWE-502)
 # ===========================================================================
+
 
 class TestPickleRemoval:
     """PickleRemovedError is raised for any .pkl or .pickle path."""
@@ -87,6 +85,7 @@ class TestPickleRemoval:
 # ===========================================================================
 # Component 2 — Secrets Resolution
 # ===========================================================================
+
 
 class TestSecretsResolution:
     """${ENV_VAR} tokens are resolved at pipeline load time."""
@@ -158,6 +157,7 @@ class TestSecretsResolution:
         os.environ.pop("_NEVER_SET_XYZ", None)
         with pytest.raises(SecretResolutionError) as exc_info:
             from etlpipe._secrets import resolve_secrets
+
             resolve_secrets("${_NEVER_SET_XYZ}")
         assert exc_info.value.var_name == "_NEVER_SET_XYZ"
 
@@ -166,11 +166,13 @@ class TestSecretsResolution:
 # Component 3 — Bank-Specific PII Patterns
 # ===========================================================================
 
+
 class TestBankPIIPatterns:
     """Banking PII types are detected by scan_pii()."""
 
     def _scan(self, df, col_name=None):
         from etlpipe_governance import scan_pii
+
         report = scan_pii(df)
         if col_name:
             return report[report["Column"] == col_name]
@@ -224,10 +226,12 @@ class TestBankPIIPatterns:
 
     def test_existing_patterns_still_work(self):
         """Original 12 patterns remain functional after adding bank extensions."""
-        df = pd.DataFrame({
-            "email": ["alice@bank.com", "bob@corp.org"],
-            "ssn": ["123-45-6789", "987-65-4321"],
-        })
+        df = pd.DataFrame(
+            {
+                "email": ["alice@bank.com", "bob@corp.org"],
+                "ssn": ["123-45-6789", "987-65-4321"],
+            }
+        )
         report = self._scan(df)
         pii_types = set(report["PII_Type"].tolist())
         assert "email" in pii_types
@@ -236,12 +240,14 @@ class TestBankPIIPatterns:
     def test_total_pattern_count_expanded(self):
         """_DEFAULT_PATTERNS must contain at least 20 entries (12 original + 8 banking)."""
         from etlpipe_governance.pii import _DEFAULT_PATTERNS
+
         assert len(_DEFAULT_PATTERNS) >= 20
 
 
 # ===========================================================================
 # Component 4 — HTTPS Enforcement
 # ===========================================================================
+
 
 class TestHTTPSEnforcement:
     """Developer.download() rejects plain HTTP URLs by default."""
@@ -284,9 +290,11 @@ class TestHTTPSEnforcement:
         mock_response.read.return_value = b'{"ok": true}'
         mock_response.status = 200
 
-        with patch("urllib.request.urlopen", return_value=mock_response):
-            with pytest.warns(SecurityWarning, match="insecure HTTP"):
-                engine.download("http://internal.example.com/data", allow_http=True)
+        with (
+            patch("urllib.request.urlopen", return_value=mock_response),
+            pytest.warns(SecurityWarning, match="insecure HTTP"),
+        ):
+            engine.download("http://internal.example.com/data", allow_http=True)
 
     def test_insecure_url_error_message(self):
         from etlpipe.engines.pandas_engine import InsecureURLError
@@ -300,18 +308,21 @@ class TestHTTPSEnforcement:
 # Component 5 — SIEM Audit Forwarder Fan-out
 # ===========================================================================
 
+
 class TestAuditForwarders:
     """AuditTrail fans out to registered forwarders on every log() call."""
 
     def _make_results(self):
-        return pd.DataFrame({
-            "Suite": ["Daily"],
-            "Contract": ["schema:customers"],
-            "Description": ["Customer schema check"],
-            "Status": ["PASS"],
-            "Violation_Count": [0],
-            "Violations": [""],
-        })
+        return pd.DataFrame(
+            {
+                "Suite": ["Daily"],
+                "Contract": ["schema:customers"],
+                "Description": ["Customer schema check"],
+                "Status": ["PASS"],
+                "Violation_Count": [0],
+                "Violations": [""],
+            }
+        )
 
     def test_forwarder_is_called_on_log(self, tmp_path):
         from etlpipe_governance.audit import AuditForwarder, AuditTrail
@@ -431,11 +442,13 @@ class TestAuditForwarders:
 # Component 6 — OpenLineage Lineage Collector
 # ===========================================================================
 
+
 class TestLineageCollector:
     """LineageCollector records steps and produces valid OpenLineage events."""
 
     def _make_collector(self):
         from etlpipe._lineage import LineageCollector
+
         c = LineageCollector(namespace="test.prod", job_prefix="bank")
         c.set_pipeline("daily_reconciliation", run_id="run-2026-08-17")
         return c
@@ -520,6 +533,7 @@ class TestLineageCollector:
 # Component 7 — RBAC Guard
 # ===========================================================================
 
+
 class TestRBACGuard:
     """PipelineGuard blocks or allows pipeline execution correctly."""
 
@@ -600,6 +614,7 @@ class TestRBACGuard:
 # ===========================================================================
 # Component 8 — Secure Pseudonymise Mapping Storage
 # ===========================================================================
+
 
 class TestSecureMappingStorage:
     """save_mapping and load_mapping work correctly, with and without encryption."""
@@ -682,6 +697,7 @@ class TestSecureMappingStorage:
 # Integration smoke test — all components together
 # ===========================================================================
 
+
 class TestSecurityIntegration:
     """Verify that all 9 components can be imported and instantiated together."""
 
@@ -707,7 +723,6 @@ class TestSecurityIntegration:
         """Pipeline.run accepts guard= and lineage_collector= without errors."""
         from etlpipe._lineage import LineageCollector
         from etlpipe._rbac import AllowAllGuard
-        from etlpipe.in_out import InOut
         from etlpipe.pipeline import Pipeline
 
         # Write a minimal CSV for the pipeline to consume
@@ -721,7 +736,7 @@ steps:
   - id: load
     tool: InOut.input_data
     args:
-      path: "{str(csv_path).replace(chr(92), '/')}"
+      path: "{str(csv_path).replace(chr(92), "/")}"
 """
         yaml_path = tmp_path / "pipeline.yaml"
         yaml_path.write_text(yaml_content)
@@ -743,7 +758,13 @@ steps:
         from etlpipe_governance.pii import _DEFAULT_PATTERNS
 
         banking_patterns = {
-            "routing_number", "account_number", "swift_bic",
-            "pan_masked", "sort_code", "bsb_number", "tax_id_ein", "internal_cust_id",
+            "routing_number",
+            "account_number",
+            "swift_bic",
+            "pan_masked",
+            "sort_code",
+            "bsb_number",
+            "tax_id_ein",
+            "internal_cust_id",
         }
         assert banking_patterns.issubset(set(_DEFAULT_PATTERNS.keys()))

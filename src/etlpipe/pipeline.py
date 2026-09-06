@@ -242,7 +242,6 @@ class Pipeline:
                 # 6. Validate schema contract if provided
                 self._validate_step_schema(step, step_id, result)
 
-
             except Exception as e:
                 duration = time.perf_counter() - step_start
                 step_metric = {
@@ -327,7 +326,7 @@ class Pipeline:
         on_pipeline_complete: Callable[[str, list[dict]], None] | None = None,
         guard: Any | None = None,
         lineage_collector: Any | None = None,
-    ) -> "Pipeline":
+    ) -> Pipeline:
         """Convenience method to load and execute a pipeline.
 
         Returns:

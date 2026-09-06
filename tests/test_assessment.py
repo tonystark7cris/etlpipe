@@ -671,7 +671,7 @@ class TestSecurity:
 
     def test_pickle_format_blocked(self) -> None:
         """Pickle is permanently blocked (CWE-502 fix — upgraded from deprecation to hard error)."""
-        from etlpipe.in_out import PickleRemovedError, _BLOCKED_EXTENSIONS
+        from etlpipe.in_out import _BLOCKED_EXTENSIONS
 
         # .pkl and .pickle must be in the blocked set, not in _READERS
         assert ".pkl" in _BLOCKED_EXTENSIONS
